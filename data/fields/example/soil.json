@@ -1,0 +1,18 @@
+{
+  "fieldId": "example",
+  "source": "USDA NRCS Web Soil Survey (SSURGO Database)",
+  "retrievalDate": "2024-11-20",
+  "surveyArea": "IL019 - Champaign County, Illinois",
+  "mapUnitSymbol": "154A",
+  "mapUnitName": "Flanagan silt loam, 0 to 2 percent slopes",
+  "texture": "Silt loam",
+  "organicMatterPct": 4.5,
+  "pH": 6.2,
+  "drainage": "Somewhat poorly drained",
+  "awcInches": 2.5,
+  "hydrologicSoilGroup": "B/D",
+  "slopePct": 1.0,
+  "depthToWaterTableInches": 24,
+  "cationExchangeCapacity": 26.0,
+  "officialUrl": "https://websoilsurvey.nrcs.usda.gov/"
+}

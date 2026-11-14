@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "Nilam Pesum (FieldVoice)",
+    "subtitle": "Voice-First Agricultural Advisory Powered by NASA Earth Data",
+    "challenge": "NASA Space Apps Challenge 2026 - Field Shift"
+  },
+  "nav": {
+    "field": "Field Today",
+    "plan": "Rotation Plan",
+    "season": "Season",
+    "talk": "Talk to Field",
+    "timemachine": "Time Machine",
+    "sources": "Data & Credits",
+    "datacheck": "Data Check",
+    "extension": "County Extension"
+  },
+  "auth": {
+    "welcome": "Welcome to Nilam Pesum",
+    "login_subtitle": "Sign in with your mobile phone and 4-digit PIN",
+    "phone_label": "Phone Number",
+    "pin_label": "4-Digit PIN",
+    "btn_login": "Sign In to Farm",
+    "btn_demo": "Judge Demo Login (PIN 1234)",
+    "btn_register": "Register New Farm",
+    "demo_hint": "Judges: Click 'Judge Demo Login' to enter instantly with pre-loaded Story County, Iowa NASA datasets."
+  },
+  "onboarding": {
+    "prompt": "Tell me about your land",
+    "example": "\"I have 160 acres, silt loam soil, no irrigation, and grew corn last year.\"",
+    "tap_to_speak": "Tap to Speak",
+    "listening": "Listening to your voice...",
+    "btn_confirm": "Confirm & Analyze My Land",
+    "btn_manual": "Manual Input Fallback"
+  },
+  "today": {
+    "title": "Field Today",
+    "root_wetness": "Root-Zone Soil Wetness",
+    "rainfall_30d": "30-Day Rainfall",
+    "temp_trend": "Temperature",
+    "ndvi": "Canopy Greenness (NDVI)",
+    "passport_btn": "Data Passport",
+    "read_aloud": "Read Aloud"
+  },
+  "rotation": {
+    "title": "Recommended Crop Rotations",
+    "subtitle": "Evaluated across 5 agronomic factors using NASA POWER & USDA soil data",
+    "overall_score": "Overall Score",
+    "yield_score": "Yield",
+    "water_score": "Water",
+    "soil_score": "Soil",
+    "income_score": "Income",
+    "risk_score": "Risk",
+    "what_if_title": "What-If Climate Stress Simulator",
+    "soil_bank_title": "Soil Bank (Nitrogen Ledger)",
+    "planting_window_title": "Planting Window Test"
+  },
+  "season": {
+    "title": "Season Companion",
+    "subtitle": "Real-time calendar tasks and NASA weather alerts",
+    "alerts_heading": "Active Weather Alerts",
+    "voice_notes_heading": "Field Voice Notes"
+  },
+  "timemachine": {
+    "title": "Time Machine",
+    "tagline": "Replay a historical growing season using real archived NASA data",
+    "play": "Play Replay",
+    "pause": "Pause",
+    "next_week": "Next Week",
+    "next_month": "Next Month",
+    "report_card_btn": "View Season Report Card"
+  },
+  "talk": {
+    "title": "Talk to Nilam Pesum",
+    "subtitle": "Voice-enabled agricultural decision assistant",
+    "mic_hint": "Tap microphone and speak your question",
+    "suggested_questions": "Suggested Questions:"
+  }
+}

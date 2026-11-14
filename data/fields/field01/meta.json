@@ -1,0 +1,28 @@
+{
+  "fieldId": "field01",
+  "name": "Story County Pioneer Field",
+  "farmerName": "John Miller",
+  "county": "Story",
+  "state": "Iowa",
+  "country": "USA",
+  "location": {
+    "lat": 42.0308,
+    "lng": -93.6319
+  },
+  "areaAcres": 160,
+  "waterSource": "rainfed",
+  "currentCrop": "corn",
+  "previousCrops": [
+    "soybean",
+    "corn",
+    "soybean"
+  ],
+  "priorities": [
+    "Protect my soil",
+    "Lower my risk",
+    "Earn more"
+  ],
+  "elevationMeters": 298,
+  "lastRefreshed": "2026-11-14T10:08:57.308Z",
+  "dataSource": "Official NASA POWER & AppEEARS Archives"
+}

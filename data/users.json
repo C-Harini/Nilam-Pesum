@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "doc_1794651348737_lhnbnu",
+    "createdAt": "2026-11-14T10:15:48.737Z",
+    "updatedAt": "2026-11-14T10:15:48.738Z",
+    "phone": "9991112233",
+    "pinHash": "$2a$10$EzwMYKi3hP8gA3AOStYnE.ZHw.qGuEJblHBqQLaenjLfyPvjhdjKC",
+    "name": "Test Farmer"
+  },
+  {
+    "_id": "doc_1794652620248_lcogp6",
+    "createdAt": "2026-11-14T10:37:00.248Z",
+    "updatedAt": "2026-11-14T10:37:00.249Z",
+    "phone": "9991112233",
+    "pinHash": "$2a$10$O8NweeZCjRE/z63fqPI1YedfwkDW2aB6s2hoRdyA02BSBsNJ0oLZq",
+    "name": "Test Farmer"
+  }
+]

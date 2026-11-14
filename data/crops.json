@@ -1,0 +1,314 @@
+{
+  "crops": [
+    {
+      "id": "corn",
+      "name": "Corn (Maize)",
+      "type": "cash_crop",
+      "category": "grain",
+      "typicalYield": 185,
+      "yieldUnit": "bu/acre",
+      "marketPricePerUnit": 4.85,
+      "inputCostPerAcre": 620,
+      "waterRequirementInches": 22.5,
+      "droughtTolerance": "moderate",
+      "gddBaseTempF": 50,
+      "gddToMaturity": 2550,
+      "plantingWindow": {
+        "start": "04-20",
+        "end": "05-25",
+        "optimalStart": "04-25",
+        "optimalEnd": "05-15",
+        "minSoilTempF": 50
+      },
+      "harvestWindow": {
+        "start": "09-20",
+        "end": "11-05"
+      },
+      "criticalStressWindows": [
+        {
+          "stage": "Silking & Pollination (R1)",
+          "gddOffset": 1250,
+          "maxTempF": 95,
+          "vulnerability": "severe_yield_loss"
+        },
+        {
+          "stage": "Grain Fill (R2-R3)",
+          "gddOffset": 1650,
+          "maxTempF": 92,
+          "vulnerability": "kernel_abortion"
+        }
+      ],
+      "nitrogenEffectLbsPerAcre": -165,
+      "pestBreakValue": 20,
+      "erosionProtectionScore": 60,
+      "compatiblePrecedingCrops": ["soybean", "alfalfa", "crimson_clover", "cereal_rye"],
+      "incompatiblePrecedingCrops": ["corn"],
+      "description": "High-yielding primary feed and fuel crop with substantial nitrogen and water demands during pollination."
+    },
+    {
+      "id": "soybean",
+      "name": "Soybean",
+      "type": "legume",
+      "category": "oilseed",
+      "typicalYield": 55,
+      "yieldUnit": "bu/acre",
+      "marketPricePerUnit": 12.40,
+      "inputCostPerAcre": 380,
+      "waterRequirementInches": 18.0,
+      "droughtTolerance": "moderate_high",
+      "gddBaseTempF": 50,
+      "gddToMaturity": 2300,
+      "plantingWindow": {
+        "start": "05-01",
+        "end": "06-10",
+        "optimalStart": "05-05",
+        "optimalEnd": "05-25",
+        "minSoilTempF": 54
+      },
+      "harvestWindow": {
+        "start": "09-25",
+        "end": "10-31"
+      },
+      "criticalStressWindows": [
+        {
+          "stage": "Pod Development (R3-R4)",
+          "gddOffset": 1400,
+          "maxTempF": 93,
+          "vulnerability": "flower_abortion"
+        },
+        {
+          "stage": "Seed Fill (R5)",
+          "gddOffset": 1800,
+          "maxTempF": 92,
+          "vulnerability": "seed_weight_reduction"
+        }
+      ],
+      "nitrogenEffectLbsPerAcre": 45,
+      "pestBreakValue": 75,
+      "erosionProtectionScore": 55,
+      "compatiblePrecedingCrops": ["corn", "winter_wheat", "oats", "cereal_rye"],
+      "incompatiblePrecedingCrops": ["soybean"],
+      "description": "Nitrogen-fixing legume providing a vital pest break against corn rootworm while replenishing soil nitrogen."
+    },
+    {
+      "id": "winter_wheat",
+      "name": "Winter Wheat",
+      "type": "cash_crop",
+      "category": "small_grain",
+      "typicalYield": 75,
+      "yieldUnit": "bu/acre",
+      "marketPricePerUnit": 6.30,
+      "inputCostPerAcre": 310,
+      "waterRequirementInches": 16.0,
+      "droughtTolerance": "high",
+      "gddBaseTempF": 40,
+      "gddToMaturity": 1950,
+      "plantingWindow": {
+        "start": "09-20",
+        "end": "10-25",
+        "optimalStart": "09-25",
+        "optimalEnd": "10-15",
+        "minSoilTempF": 45
+      },
+      "harvestWindow": {
+        "start": "06-25",
+        "end": "07-20"
+      },
+      "criticalStressWindows": [
+        {
+          "stage": "Heading & Anthesis",
+          "gddOffset": 1100,
+          "maxTempF": 88,
+          "vulnerability": "sterility_and_shrivel"
+        }
+      ],
+      "nitrogenEffectLbsPerAcre": -60,
+      "pestBreakValue": 85,
+      "erosionProtectionScore": 85,
+      "compatiblePrecedingCrops": ["soybean", "oats", "sorghum"],
+      "incompatiblePrecedingCrops": ["winter_wheat"],
+      "description": "Overwintering small grain that protects topsoil from spring runoff, spreads seasonal labor, and breaks weed cycles."
+    },
+    {
+      "id": "oats",
+      "name": "Spring Oats",
+      "type": "cash_crop",
+      "category": "small_grain",
+      "typicalYield": 95,
+      "yieldUnit": "bu/acre",
+      "marketPricePerUnit": 3.90,
+      "inputCostPerAcre": 240,
+      "waterRequirementInches": 15.0,
+      "droughtTolerance": "moderate",
+      "gddBaseTempF": 42,
+      "gddToMaturity": 1650,
+      "plantingWindow": {
+        "start": "03-25",
+        "end": "04-25",
+        "optimalStart": "04-01",
+        "optimalEnd": "04-15",
+        "minSoilTempF": 40
+      },
+      "harvestWindow": {
+        "start": "07-15",
+        "end": "08-10"
+      },
+      "criticalStressWindows": [
+        {
+          "stage": "Boot to Heading",
+          "gddOffset": 950,
+          "maxTempF": 86,
+          "vulnerability": "lodging_and_blight"
+        }
+      ],
+      "nitrogenEffectLbsPerAcre": -45,
+      "pestBreakValue": 80,
+      "erosionProtectionScore": 75,
+      "compatiblePrecedingCrops": ["corn", "soybean", "alfalfa"],
+      "incompatiblePrecedingCrops": ["oats"],
+      "description": "Cool-season early spring grain with low input requirements and excellent weed suppression."
+    },
+    {
+      "id": "alfalfa",
+      "name": "Alfalfa (Perennial Forage)",
+      "type": "legume",
+      "category": "forage",
+      "typicalYield": 4.5,
+      "yieldUnit": "tons/acre",
+      "marketPricePerUnit": 175.0,
+      "inputCostPerAcre": 360,
+      "waterRequirementInches": 26.0,
+      "droughtTolerance": "high",
+      "gddBaseTempF": 41,
+      "gddToMaturity": 2800,
+      "plantingWindow": {
+        "start": "04-05",
+        "end": "05-15",
+        "optimalStart": "04-15",
+        "optimalEnd": "05-01",
+        "minSoilTempF": 45
+      },
+      "harvestWindow": {
+        "start": "06-01",
+        "end": "09-15"
+      },
+      "criticalStressWindows": [
+        {
+          "stage": "Mid-summer re-growth",
+          "gddOffset": 1500,
+          "maxTempF": 98,
+          "vulnerability": "dormancy"
+        }
+      ],
+      "nitrogenEffectLbsPerAcre": 130,
+      "pestBreakValue": 95,
+      "erosionProtectionScore": 95,
+      "compatiblePrecedingCrops": ["corn", "oats", "wheat"],
+      "incompatiblePrecedingCrops": ["alfalfa"],
+      "description": "Deep-rooting perennial legume that breaks deep subsoil hardpans, fixes significant nitrogen, and produces premium forage."
+    },
+    {
+      "id": "sorghum",
+      "name": "Grain Sorghum (Milo)",
+      "type": "cash_crop",
+      "category": "grain",
+      "typicalYield": 110,
+      "yieldUnit": "bu/acre",
+      "marketPricePerUnit": 4.60,
+      "inputCostPerAcre": 390,
+      "waterRequirementInches": 16.5,
+      "droughtTolerance": "very_high",
+      "gddBaseTempF": 50,
+      "gddToMaturity": 2200,
+      "plantingWindow": {
+        "start": "05-15",
+        "end": "06-25",
+        "optimalStart": "05-20",
+        "optimalEnd": "06-10",
+        "minSoilTempF": 60
+      },
+      "harvestWindow": {
+        "start": "10-01",
+        "end": "11-15"
+      },
+      "criticalStressWindows": [
+        {
+          "stage": "Flowering",
+          "gddOffset": 1300,
+          "maxTempF": 98,
+          "vulnerability": "pollen_desiccation"
+        }
+      ],
+      "nitrogenEffectLbsPerAcre": -100,
+      "pestBreakValue": 70,
+      "erosionProtectionScore": 65,
+      "compatiblePrecedingCrops": ["soybean", "alfalfa", "crimson_clover"],
+      "incompatiblePrecedingCrops": ["sorghum"],
+      "description": "Exceptional drought-resilient grain with low water requirements, ideal for dry seasons or sandy soil patches."
+    },
+    {
+      "id": "cereal_rye",
+      "name": "Cereal Rye (Cover Crop)",
+      "type": "cover_crop",
+      "category": "cover",
+      "typicalYield": 0,
+      "yieldUnit": "cover biomass",
+      "marketPricePerUnit": 0.0,
+      "inputCostPerAcre": 65,
+      "waterRequirementInches": 6.0,
+      "droughtTolerance": "very_high",
+      "gddBaseTempF": 34,
+      "gddToMaturity": 1200,
+      "plantingWindow": {
+        "start": "09-01",
+        "end": "11-15",
+        "optimalStart": "09-15",
+        "optimalEnd": "10-20",
+        "minSoilTempF": 34
+      },
+      "harvestWindow": {
+        "start": "04-15",
+        "end": "05-10"
+      },
+      "criticalStressWindows": [],
+      "nitrogenEffectLbsPerAcre": 25,
+      "pestBreakValue": 80,
+      "erosionProtectionScore": 95,
+      "compatiblePrecedingCrops": ["corn", "soybean", "sorghum"],
+      "incompatiblePrecedingCrops": [],
+      "description": "Hardy winter cover crop that scavenges residual nitrates, builds organic matter, suppresses weeds, and halts winter erosion."
+    },
+    {
+      "id": "crimson_clover",
+      "name": "Crimson Clover (Cover Crop)",
+      "type": "cover_crop",
+      "category": "cover_legume",
+      "typicalYield": 0,
+      "yieldUnit": "cover biomass",
+      "marketPricePerUnit": 0.0,
+      "inputCostPerAcre": 75,
+      "waterRequirementInches": 7.5,
+      "droughtTolerance": "moderate",
+      "gddBaseTempF": 40,
+      "gddToMaturity": 1400,
+      "plantingWindow": {
+        "start": "08-15",
+        "end": "10-01",
+        "optimalStart": "08-25",
+        "optimalEnd": "09-15",
+        "minSoilTempF": 45
+      },
+      "harvestWindow": {
+        "start": "04-20",
+        "end": "05-15"
+      },
+      "criticalStressWindows": [],
+      "nitrogenEffectLbsPerAcre": 85,
+      "pestBreakValue": 85,
+      "erosionProtectionScore": 90,
+      "compatiblePrecedingCrops": ["corn", "winter_wheat", "oats"],
+      "incompatiblePrecedingCrops": [],
+      "description": "Rapid-establishing winter annual legume that fixes up to 85-100 lbs of biological nitrogen ahead of spring corn."
+    }
+  ]
+}

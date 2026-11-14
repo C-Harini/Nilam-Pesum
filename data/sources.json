@@ -1,0 +1,167 @@
+{
+  "system": "Nilam Pesum (FieldVoice)",
+  "version": "1.0.0",
+  "lastCatalogAudit": "2026-11-14",
+  "sources": {
+    "nasa_power": {
+      "id": "nasa_power",
+      "name": "NASA Prediction Of Worldwide Energy Resources (POWER)",
+      "provider": "NASA Langley Research Center (LaRC)",
+      "endpoint": "https://power.larc.nasa.gov/api/temporal/daily/point",
+      "format": "JSON / CSV",
+      "authRequired": false,
+      "dataType": "Modeled / Assimilated (MERRA-2 & GEOS FP-IT)",
+      "spatialResolution": "0.5° x 0.625° (~50km)",
+      "temporalResolution": "Daily",
+      "parameters": [
+        {
+          "code": "PRECTOTCORR",
+          "name": "Precipitation Corrected",
+          "unit": "mm/day",
+          "convertedUnit": "inches/day"
+        },
+        {
+          "code": "T2M",
+          "name": "Temperature at 2 Meters",
+          "unit": "°C",
+          "convertedUnit": "°F"
+        },
+        {
+          "code": "T2M_MAX",
+          "name": "Maximum Temperature at 2 Meters",
+          "unit": "°C",
+          "convertedUnit": "°F"
+        },
+        {
+          "code": "T2M_MIN",
+          "name": "Minimum Temperature at 2 Meters",
+          "unit": "°C",
+          "convertedUnit": "°F"
+        },
+        {
+          "code": "RH2M",
+          "name": "Relative Humidity at 2 Meters",
+          "unit": "%",
+          "convertedUnit": "%"
+        },
+        {
+          "code": "ALLSKY_SFC_SW_DWN",
+          "name": "All Sky Surface Shortwave Downward Irradiance",
+          "unit": "MJ/m^2/day",
+          "convertedUnit": "MJ/m^2/day"
+        },
+        {
+          "code": "WS2M",
+          "name": "Wind Speed at 2 Meters",
+          "unit": "m/s",
+          "convertedUnit": "mph"
+        },
+        {
+          "code": "GWETROOT",
+          "name": "Root Zone Soil Wetness (0-1)",
+          "unit": "dimensionless",
+          "convertedUnit": "% saturation"
+        },
+        {
+          "code": "GWETTOP",
+          "name": "Surface Soil Wetness (0-1)",
+          "unit": "dimensionless",
+          "convertedUnit": "% saturation"
+        }
+      ],
+      "officialUrl": "https://power.larc.nasa.gov/"
+    },
+    "nasa_appeears_ndvi": {
+      "id": "nasa_appeears_ndvi",
+      "name": "NASA AppEEARS / MODIS Normalized Difference Vegetation Index",
+      "provider": "NASA LP DAAC / USGS EROS",
+      "product": "MOD13Q1.061 (Terra MODIS 250m 16-day NDVI)",
+      "endpoint": "https://appeears.earthdatacloud.nasa.gov/api/",
+      "format": "CSV / GeoTIFF",
+      "authRequired": true,
+      "authMechanism": "Earthdata Login Bearer Token",
+      "dataType": "Measured (Satellite Radiometry)",
+      "spatialResolution": "250 meters",
+      "temporalResolution": "16-day composite",
+      "parameters": [
+        {
+          "code": "_250m_16_days_NDVI",
+          "name": "NDVI",
+          "scaleFactor": 0.0001,
+          "validRange": [
+            -2000,
+            10000
+          ]
+        },
+        {
+          "code": "_250m_16_days_VI_Quality",
+          "name": "VI Quality Flags",
+          "description": "Cloud & aerosol screening"
+        }
+      ],
+      "officialUrl": "https://appeears.earthdatacloud.nasa.gov/"
+    },
+    "nasa_smap": {
+      "id": "nasa_smap",
+      "name": "NASA Soil Moisture Active Passive (SMAP)",
+      "provider": "NASA NSIDC DAAC / JPL",
+      "product": "SPL3SMP_E / SPL4SMGP",
+      "endpoint": "https://nsidc.org/data/smap",
+      "format": "HDF5 / GeoTIFF / CSV",
+      "authRequired": true,
+      "dataType": "Measured & Assimilated (L-band Radiometer)",
+      "spatialResolution": "9km to 36km",
+      "temporalResolution": "Daily to 3-day",
+      "officialUrl": "https://nsidc.org/data/smap",
+      "status": "optional_supported"
+    },
+    "nasa_gpm_imerg": {
+      "id": "nasa_gpm_imerg",
+      "name": "NASA Global Precipitation Measurement (GPM) IMERG",
+      "provider": "NASA GES DISC",
+      "product": "GPM_3IMERGDF (Daily Final)",
+      "endpoint": "https://gpm.nasa.gov/data",
+      "format": "GeoTIFF / HDF5 / CSV",
+      "authRequired": true,
+      "dataType": "Measured / Multi-satellite Gauge-Calibrated",
+      "spatialResolution": "0.1° (~10km)",
+      "temporalResolution": "Daily",
+      "officialUrl": "https://gpm.nasa.gov/data",
+      "status": "optional_supported"
+    },
+    "nasa_gibs": {
+      "id": "nasa_gibs",
+      "name": "NASA Global Imagery Browse Services (GIBS)",
+      "provider": "NASA Earth Science Data and Information System (ESDIS)",
+      "endpoint": "https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/wmts.cgi",
+      "layers": [
+        "MODIS_Terra_CorrectedReflectance_TrueColor",
+        "VIIRS_SNPP_CorrectedReflectance_TrueColor"
+      ],
+      "format": "PNG / JPEG / Web Mercator / WGS84",
+      "authRequired": false,
+      "dataType": "Measured (Satellite True-Color Imagery)",
+      "spatialResolution": "250m (MODIS) / 375m (VIIRS)",
+      "temporalResolution": "Daily",
+      "officialUrl": "https://nasa-gibs.github.io/gibs-api-docs/"
+    },
+    "usda_ssurgo": {
+      "id": "usda_ssurgo",
+      "name": "USDA NRCS Web Soil Survey / Soil Data Access (SSURGO)",
+      "provider": "USDA Natural Resources Conservation Service",
+      "endpoint": "https://sdmdataaccess.nrcs.usda.gov/tabular/post.rest",
+      "format": "JSON / Tabular",
+      "authRequired": false,
+      "dataType": "Measured & Surveyed Ground Truth",
+      "spatialResolution": "Field / Map Unit Polygon (1:12,000 to 1:24,000)",
+      "parameters": [
+        "Soil Texture Class",
+        "Organic Matter %",
+        "Soil pH (1:1 water)",
+        "Drainage Class",
+        "Available Water Capacity (AWC in inches/foot)"
+      ],
+      "officialUrl": "https://websoilsurvey.nrcs.usda.gov/"
+    }
+  }
+}

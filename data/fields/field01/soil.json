@@ -1,0 +1,18 @@
+{
+  "fieldId": "field01",
+  "source": "USDA NRCS Web Soil Survey (SSURGO Database)",
+  "retrievalDate": "2024-10-15",
+  "surveyArea": "IA169 - Story County, Iowa",
+  "mapUnitSymbol": "138B",
+  "mapUnitName": "Clarion loam, 2 to 6 percent slopes",
+  "texture": "Silt loam",
+  "organicMatterPct": 3.8,
+  "pH": 6.5,
+  "drainage": "Well drained",
+  "awcInches": 2.4,
+  "hydrologicSoilGroup": "B",
+  "slopePct": 3.0,
+  "depthToWaterTableInches": 48,
+  "cationExchangeCapacity": 22.5,
+  "officialUrl": "https://websoilsurvey.nrcs.usda.gov/"
+}

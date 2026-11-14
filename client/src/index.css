@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-cream: #FAF7F2;
+  --soil-brown: #4A3525;
+  --field-green: #2E6F40;
+  --wheat-gold: #D4A343;
+}
+
+body {
+  background-color: var(--bg-cream);
+  color: var(--soil-brown);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Accessible, tactile buttons */
+.btn-primary {
+  @apply min-h-[56px] px-6 py-3.5 bg-field-700 hover:bg-field-800 active:bg-field-900 text-cream-50 font-display font-semibold rounded-2xl shadow-tactile active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 select-none;
+}
+
+.btn-secondary {
+  @apply min-h-[56px] px-6 py-3.5 bg-cream-50 hover:bg-cream-200 active:bg-cream-300 text-soil-800 border-2 border-soil-300 font-display font-semibold rounded-2xl shadow-sm active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 select-none;
+}
+
+.btn-gold {
+  @apply min-h-[56px] px-6 py-3.5 bg-wheat-500 hover:bg-wheat-600 active:bg-wheat-700 text-soil-900 font-display font-bold rounded-2xl shadow-tactile active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 select-none;
+}
+
+/* Tactile Card styling */
+.card-heartland {
+  @apply bg-cream-50 border border-soil-100 rounded-3xl p-5 shadow-tactile transition-shadow hover:shadow-tactile-hover;
+}
+
+/* Leaflet map fix */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 1.5rem;
+  z-index: 10;
+}

@@ -1,0 +1,431 @@
+import React, { useState, useEffect } from 'react';
+import { useField } from '../context/FieldContext';
+import { rotationAPI, seasonAPI } from '../services/api';
+import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle } from 'lucide-react';
+
+export default function RotationPlan() {
+  const { currentFieldId, profile } = useField();
+  const [rotations, setRotations] = useState([]);
+  const [selectedRotation, setSelectedRotation] = useState(null);
+  const [backtest, setBacktest] = useState(null);
+  const [plantingWindow, setPlantingWindow] = useState(null);
+  const [soilBank, setSoilBank] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // What-If Simulation State
+  const [tempDelta, setTempDelta] = useState(0);
+  const [rainDelta, setRainDelta] = useState(0);
+  const [plantingDelay, setPlantingDelay] = useState(0);
+  const [whatIfResult, setWhatIfResult] = useState(null);
+  const [simulating, setSimulating] = useState(false);
+  const [committedMsg, setCommittedMsg] = useState(null);
+
+  const fetchRotations = async () => {
+    try {
+      setLoading(true);
+      const res = await rotationAPI.getRotations({
+        fieldId: currentFieldId,
+        priorities: profile?.priorities?.join(',') || ''
+      });
+      const list = res.data.rotations || [];
+      setRotations(list);
+      if (list.length > 0) {
+        selectRotation(list[0]);
+      }
+    } catch (e) {
+      console.warn('Rotations fetch error', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectRotation = async (rot) => {
+    setSelectedRotation(rot);
+    setWhatIfResult(null);
+    setTempDelta(0);
+    setRainDelta(0);
+    setPlantingDelay(0);
+
+    // Fetch backtest and soil bank
+    try {
+      const [btRes, pwRes, sbRes] = await Promise.all([
+        rotationAPI.getBacktest(rot.id, currentFieldId),
+        rotationAPI.getPlantingWindow(currentFieldId),
+        rotationAPI.getSoilBank(rot.sequence)
+      ]);
+      setBacktest(btRes.data);
+      setPlantingWindow(pwRes.data);
+      setSoilBank(sbRes.data);
+    } catch (err) {
+      console.warn('Sub-analyses fetch error', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRotations();
+  }, [currentFieldId]);
+
+  // Handle What-If simulation
+  const handleWhatIfSimulate = async () => {
+    if (!selectedRotation) return;
+    try {
+      setSimulating(true);
+      const res = await rotationAPI.simulateWhatIf(selectedRotation.id, {
+        baselineScores: selectedRotation.scores,
+        adjustments: {
+          tempDeltaF: tempDelta,
+          rainDeltaPct: rainDelta,
+          plantingDelayDays: plantingDelay
+        }
+      });
+      setWhatIfResult(res.data);
+    } catch (e) {
+      console.warn('Simulation error', e);
+    } finally {
+      setSimulating(false);
+    }
+  };
+
+  const handleCommitSeason = async () => {
+    if (!selectedRotation) return;
+    try {
+      await seasonAPI.commitPlan({
+        fieldId: currentFieldId,
+        rotationId: selectedRotation.id,
+        sequence: selectedRotation.sequence
+      });
+      setCommittedMsg(`Successfully committed ${selectedRotation.name} to your active 2024 season!`);
+      setTimeout(() => setCommittedMsg(null), 6000);
+    } catch (e) {
+      alert('Could not commit plan: ' + e.message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-field-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <div className="text-sm font-bold text-soil-800">Calculating 3-Season Rotation Scores...</div>
+        </div>
+      </div>
+    );
+  }
+
+  const activeScores = whatIfResult ? whatIfResult.adjustedScores : (selectedRotation?.scores || {});
+
+  return (
+    <div className="max-w-xl mx-auto px-4 py-6 pb-28 space-y-6">
+      {/* Title */}
+      <div>
+        <span className="text-[11px] uppercase font-bold tracking-wider text-soil-600">
+          Agronomic Rotation Optimization
+        </span>
+        <h1 className="font-display font-extrabold text-2xl text-soil-900 leading-tight">
+          Recommended Crop Plans
+        </h1>
+        <p className="text-xs text-soil-600 mt-1">
+          Top 5 valid 3-season rotations scored against your priorities and historical NASA POWER climate records.
+        </p>
+      </div>
+
+      {committedMsg && (
+        <div className="bg-field-100 border border-field-400 text-field-900 rounded-2xl p-4 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-5 h-5 text-field-700 flex-shrink-0" />
+          <span>{committedMsg}</span>
+        </div>
+      )}
+
+      {/* Top 5 Rotation Cards Carousel / Selector */}
+      <div className="space-y-3">
+        {rotations.map((rot, idx) => {
+          const isSelected = selectedRotation?.id === rot.id;
+          return (
+            <div
+              key={rot.id}
+              onClick={() => selectRotation(rot)}
+              className={`card-heartland cursor-pointer transition-all border-2 ${
+                isSelected
+                  ? 'border-field-600 bg-cream-50 shadow-tactile-hover ring-2 ring-field-600/20'
+                  : 'border-soil-200 hover:border-soil-400'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold ${
+                    idx === 0 ? 'bg-wheat-400 text-soil-900' : 'bg-soil-200 text-soil-800'
+                  }`}>
+                    #{idx + 1}
+                  </span>
+                  <h3 className="font-display font-bold text-sm text-soil-900">
+                    {rot.name}
+                  </h3>
+                </div>
+
+                <div className="text-right">
+                  <div className="text-xs uppercase font-semibold text-soil-500">Overall</div>
+                  <div className="font-display font-extrabold text-xl text-field-700">
+                    {rot.scores.overall}<span className="text-xs text-soil-500">/100</span>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs text-soil-600 mt-2 leading-relaxed">
+                {rot.description}
+              </p>
+
+              {/* 5-Factor Score Pills */}
+              <div className="grid grid-cols-5 gap-1.5 mt-3 pt-3 border-t border-soil-200 text-center">
+                <div className="bg-cream-200 p-1.5 rounded-xl">
+                  <div className="text-[10px] text-soil-600">Yield</div>
+                  <div className="text-xs font-bold text-soil-900">{rot.scores.yield}</div>
+                </div>
+                <div className="bg-cream-200 p-1.5 rounded-xl">
+                  <div className="text-[10px] text-soil-600">Water</div>
+                  <div className="text-xs font-bold text-soil-900">{rot.scores.water}</div>
+                </div>
+                <div className="bg-cream-200 p-1.5 rounded-xl">
+                  <div className="text-[10px] text-soil-600">Soil</div>
+                  <div className="text-xs font-bold text-soil-900">{rot.scores.soil}</div>
+                </div>
+                <div className="bg-cream-200 p-1.5 rounded-xl">
+                  <div className="text-[10px] text-soil-600">Income</div>
+                  <div className="text-xs font-bold text-soil-900">{rot.scores.income}</div>
+                </div>
+                <div className="bg-cream-200 p-1.5 rounded-xl">
+                  <div className="text-[10px] text-soil-600">Risk</div>
+                  <div className="text-xs font-bold text-soil-900">{rot.scores.risk}</div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Selected Rotation Deep-Dive Section */}
+      {selectedRotation && (
+        <div className="space-y-6 pt-2">
+          {/* Action: Commit Rotation */}
+          <button
+            onClick={handleCommitSeason}
+            className="btn-primary w-full text-base font-bold shadow-tactile flex items-center justify-center gap-2"
+          >
+            <CheckCircle2 className="w-5 h-5 text-wheat-400" />
+            Commit This Rotation as My Season Plan
+          </button>
+
+          {/* Priority Weighting Transparency Box */}
+          {selectedRotation.explanations && selectedRotation.explanations.length > 0 && (
+            <div className="bg-wheat-50 border border-wheat-300 rounded-2xl p-4 text-xs text-soil-800 space-y-1">
+              <div className="font-bold text-soil-900 flex items-center gap-1.5">
+                <Award className="w-4 h-4 text-wheat-600" />
+                Transparent Priority Double-Weighting
+              </div>
+              {selectedRotation.explanations.map((exp, i) => (
+                <div key={i} className="text-soil-700">• {exp}</div>
+              ))}
+            </div>
+          )}
+
+          {/* Soil Bank Nitrogen Ledger */}
+          {soilBank && (
+            <div className="card-heartland space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-display font-bold text-sm text-soil-900">
+                    Soil Bank (Biological Nitrogen Ledger)
+                  </h3>
+                  <p className="text-[11px] text-soil-600">Tracks nitrogen deposits from legumes vs corn withdrawals.</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] uppercase font-bold text-soil-500">Net 3-Yr N</div>
+                  <div className={`font-display font-extrabold text-lg ${
+                    soilBank.finalNetBalanceLbsPerAcre >= 0 ? 'text-field-700' : 'text-amber-700'
+                  }`}>
+                    {soilBank.finalNetBalanceLbsPerAcre >= 0 ? '+' : ''}{soilBank.finalNetBalanceLbsPerAcre} lbs N/ac
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                {soilBank.ledger.map((entry) => (
+                  <div key={entry.year} className="bg-cream-200 rounded-xl p-2.5 text-xs flex justify-between items-center">
+                    <div>
+                      <span className="font-bold text-soil-900">Year {entry.year}: {entry.cropName}</span>
+                      <div className="text-[11px] text-soil-600">{entry.description}</div>
+                    </div>
+                    <span className={`font-mono font-bold text-xs ${
+                      entry.deltaNLbsPerAcre >= 0 ? 'text-field-700' : 'text-red-700'
+                    }`}>
+                      {entry.deltaNLbsPerAcre >= 0 ? '+' : ''}{entry.deltaNLbsPerAcre} lbs
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Historical Climate Backtesting Box */}
+          {backtest && (
+            <div className="card-heartland space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-display font-bold text-sm text-soil-900">
+                    Historical Climate Backtest
+                  </h3>
+                  <p className="text-[11px] text-soil-600">Replayed across verified NASA POWER years</p>
+                </div>
+                <TrendingUp className="w-5 h-5 text-field-700" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="bg-field-50 border border-field-200 p-3 rounded-2xl">
+                  <div className="text-[10px] font-bold text-field-700 uppercase">Best Year: {backtest.bestYear?.year}</div>
+                  <div className="font-bold text-soil-900 text-sm mt-0.5">{backtest.bestYear?.verdict}</div>
+                  <div className="text-[11px] text-soil-600 mt-1">
+                    Rain: {backtest.bestYear?.totalPrecipInches}" • {backtest.bestYear?.extremeHeatDays} days &gt;95°F
+                  </div>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 p-3 rounded-2xl">
+                  <div className="text-[10px] font-bold text-amber-700 uppercase">Worst Year: {backtest.worstYear?.year}</div>
+                  <div className="font-bold text-soil-900 text-sm mt-0.5">{backtest.worstYear?.verdict}</div>
+                  <div className="text-[11px] text-soil-600 mt-1">
+                    Rain: {backtest.worstYear?.totalPrecipInches}" • {backtest.worstYear?.extremeHeatDays} days &gt;95°F
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-soil-700 italic">{backtest.summary}</p>
+            </div>
+          )}
+
+          {/* Interactive What-If Stress Simulator */}
+          <div className="card-heartland space-y-4 border-2 border-wheat-400">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-display font-bold text-sm text-soil-900 flex items-center gap-1.5">
+                  <Sliders className="w-4 h-4 text-wheat-600" />
+                  What-If Climate Stress Simulator
+                </h3>
+                <p className="text-[11px] text-soil-600">Simulate warming, drought, or delayed planting</p>
+              </div>
+              {whatIfResult && (
+                <div className="text-right">
+                  <div className="text-[10px] font-bold uppercase text-soil-500">Simulated Score</div>
+                  <div className="font-display font-extrabold text-xl text-wheat-700">
+                    {activeScores.overall} <span className="text-xs text-soil-500">({whatIfResult.deltaOverall >= 0 ? '+' : ''}{whatIfResult.deltaOverall})</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Slider Controls */}
+            <div className="space-y-3 text-xs">
+              <div>
+                <div className="flex justify-between font-semibold text-soil-700 mb-1">
+                  <span>Temperature Shift:</span>
+                  <span className="font-bold">+{tempDelta}°F</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="4"
+                  step="1"
+                  value={tempDelta}
+                  onChange={(e) => setTempDelta(parseFloat(e.target.value))}
+                  className="w-full accent-field-700"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between font-semibold text-soil-700 mb-1">
+                  <span>Precipitation Anomaly:</span>
+                  <span className="font-bold">{rainDelta >= 0 ? `+${rainDelta}` : rainDelta}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="-30"
+                  max="20"
+                  step="5"
+                  value={rainDelta}
+                  onChange={(e) => setRainDelta(parseFloat(e.target.value))}
+                  className="w-full accent-field-700"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between font-semibold text-soil-700 mb-1">
+                  <span>Planting Date Delay:</span>
+                  <span className="font-bold">{plantingDelay} days</span>
+                </div>
+                <input
+                  type="range"
+                  min="-14"
+                  max="28"
+                  step="7"
+                  value={plantingDelay}
+                  onChange={(e) => setPlantingDelay(parseInt(e.target.value))}
+                  className="w-full accent-field-700"
+                />
+              </div>
+
+              <button
+                onClick={handleWhatIfSimulate}
+                disabled={simulating}
+                className="btn-gold w-full text-xs font-bold py-2.5 mt-2"
+              >
+                {simulating ? 'Calculating Impacts...' : 'Recalculate Scores Dynamically'}
+              </button>
+            </div>
+
+            {/* Simulation Impact Feedback */}
+            {whatIfResult && (
+              <div className="bg-cream-200 rounded-2xl p-3.5 space-y-2 text-xs border border-soil-300 animate-in fade-in">
+                <div className="font-bold text-soil-900 flex items-center justify-between">
+                  <span>Resilience: {whatIfResult.resilienceRating}</span>
+                  <span className="text-soil-600">{whatIfResult.deltaOverall} pts impact</span>
+                </div>
+                <div className="space-y-1 text-soil-700">
+                  {whatIfResult.impactNotes.map((note, i) => (
+                    <div key={i}>• {note}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Planting Window Test */}
+          {plantingWindow && (
+            <div className="card-heartland space-y-3">
+              <div>
+                <h3 className="font-display font-bold text-sm text-soil-900">
+                  Planting Window Test
+                </h3>
+                <p className="text-[11px] text-soil-600">Historical last spring frost and 50°F soil warm-up thresholds</p>
+              </div>
+
+              <div className="bg-cream-200 p-3 rounded-2xl border border-soil-300 text-xs space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-soil-600">Target Planting Window:</span>
+                  <span className="font-bold text-field-800">{plantingWindow.optimalWindowSummary.targetStart} – {plantingWindow.optimalWindowSummary.targetEnd}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-soil-600">Average Last Frost (≤32°F):</span>
+                  <span className="font-bold text-soil-900">{plantingWindow.optimalWindowSummary.averageLastFrost}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-soil-600">Soil Warm-Up (≥50°F):</span>
+                  <span className="font-bold text-soil-900">{plantingWindow.optimalWindowSummary.springSoilWarmupAvg}</span>
+                </div>
+                <p className="text-[11px] text-soil-700 pt-1 leading-relaxed italic">
+                  {plantingWindow.optimalWindowSummary.insight}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

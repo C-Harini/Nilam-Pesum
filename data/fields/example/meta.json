@@ -1,0 +1,27 @@
+{
+  "fieldId": "example",
+  "name": "Champaign Prairie Parcel",
+  "farmerName": "Sarah Jenkins",
+  "county": "Champaign",
+  "state": "Illinois",
+  "country": "USA",
+  "location": {
+    "lat": 40.1164,
+    "lng": -88.2434
+  },
+  "areaAcres": 120,
+  "waterSource": "rainfed",
+  "currentCrop": "soybean",
+  "previousCrops": [
+    "corn",
+    "soybean",
+    "corn"
+  ],
+  "priorities": [
+    "Save water",
+    "Earn more"
+  ],
+  "elevationMeters": 225,
+  "lastRefreshed": "2026-11-14T10:09:14.432Z",
+  "dataSource": "Official NASA POWER & AppEEARS Sample Data (Clearly Labelled)"
+}
