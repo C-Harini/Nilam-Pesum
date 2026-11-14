@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useField } from '../context/FieldContext';
 import { rotationAPI, seasonAPI } from '../services/api';
-import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle, Maximize2 } from 'lucide-react';
+import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle, Maximize2, Trophy } from 'lucide-react';
 
 export default function RotationPlan() {
   const navigate = useNavigate();
@@ -141,6 +141,30 @@ export default function RotationPlan() {
         </div>
       )}
 
+      {/* Full Screen Game Simulation Launch Banner */}
+      <div className="bg-gradient-to-r from-stone-900 to-amber-950 border-2 border-amber-500/50 rounded-3xl p-4 text-cream-50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-tactile">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 flex-shrink-0">
+            <Trophy className="w-6 h-6 animate-pulse" />
+          </div>
+          <div>
+            <div className="text-[11px] font-mono font-bold text-amber-400 uppercase tracking-wider">
+              {isTamil ? 'விவசாய விளையாட்டு மாதிரி (Simulation Game)' : 'Farm Simulation Game'}
+            </div>
+            <div className="text-xs sm:text-sm font-display font-extrabold text-cream-100 mt-0.5">
+              {isTamil ? 'ஒவ்வொரு உத்தியையும் விளையாட்டாக மாற்றி அமைத்து சிறந்ததைத் தேர்வு செய்யுங்கள்!' : 'Test each strategy dynamically with 5 factor sliders & choose the best!'}
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => navigate('/game')}
+          className="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-xs shadow-md active:scale-95 transition flex items-center justify-center gap-2 flex-shrink-0"
+        >
+          <Trophy className="w-4 h-4" />
+          <span>{isTamil ? '🎮 விளையாட்டைத் தொடங்கு' : '🎮 Play Game'}</span>
+        </button>
+      </div>
+
       {/* Top 5 Rotation Cards Carousel / Selector */}
       <div className="space-y-3">
         {rotations.map((rot, idx) => {
@@ -202,6 +226,22 @@ export default function RotationPlan() {
                   <div className="text-xs font-bold text-soil-900">{rot.scores.risk}</div>
                 </div>
               </div>
+
+              {/* Quick Game Play button on Selected Card */}
+              {isSelected && (
+                <div className="mt-3 pt-2 border-t border-soil-200">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/game?strategy=${rot.id}`);
+                    }}
+                    className="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow active:scale-95 transition"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    <span>{isTamil ? '🎮 இந்த உத்தியை விளையாட்டாக உருவகப்படுத்து' : '🎮 Test This Strategy in Game'}</span>
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -211,20 +251,27 @@ export default function RotationPlan() {
       {selectedRotation && (
         <div className="space-y-6 pt-2">
           {/* Action Buttons: Full-Screen Simulation & Commit */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              onClick={() => navigate(`/game?strategy=${selectedRotation.id}`)}
+              className="py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-display font-extrabold text-xs sm:text-sm shadow-tactile flex items-center justify-center gap-2 active:scale-95 transition ring-2 ring-amber-300"
+            >
+              <Trophy className="w-5 h-5 text-stone-950" />
+              <span>{isTamil ? '🎮 விளையாட்டாக பரிசோதி' : '🎮 Test in Game'}</span>
+            </button>
             <button
               onClick={() => navigate('/timemachine?fullscreen=true')}
-              className="py-3 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-cream-50 font-display font-extrabold text-sm shadow-tactile flex items-center justify-center gap-2 active:scale-95 transition"
+              className="py-3 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-cream-50 font-display font-extrabold text-xs sm:text-sm shadow-tactile flex items-center justify-center gap-2 active:scale-95 transition"
             >
               <Maximize2 className="w-5 h-5 text-emerald-300" />
-              <span>{isTamil ? '🌾 நிலத்தில் முழுத்திரையில் பார்' : '🌾 Simulate Land in Full Screen'}</span>
+              <span>{isTamil ? '🌾 நிலத்தை முழுத்திரையில் பார்' : '🌾 Simulate Land'}</span>
             </button>
             <button
               onClick={handleCommitSeason}
-              className="btn-primary w-full text-sm font-bold shadow-tactile flex items-center justify-center gap-2"
+              className="btn-primary w-full text-xs sm:text-sm font-bold shadow-tactile flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-5 h-5 text-wheat-400" />
-              <span>{isTamil ? 'இச்சுழற்சியை உறுதி செய்' : 'Commit Rotation Plan'}</span>
+              <span>{isTamil ? '🏆 இச்சுழற்சியை உறுதி செய்' : '🏆 Commit Plan'}</span>
             </button>
           </div>
 

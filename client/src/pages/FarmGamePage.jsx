@@ -1,14 +1,18 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import FarmGameSimulation from '../components/simulation/FarmGameSimulation';
 
 export default function FarmGamePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialStrategyId = searchParams.get('strategy');
 
   return (
     <FarmGameSimulation 
       isOpen={true} 
-      onClose={() => navigate('/today')} 
+      initialStrategyId={initialStrategyId}
+      onClose={() => navigate(-1)} 
     />
   );
 }
+
