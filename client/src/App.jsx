@@ -17,10 +17,11 @@ import TalkPage from './pages/TalkPage';
 import DataCheckPage from './pages/DataCheckPage';
 import SourcesCreditsPage from './pages/SourcesCreditsPage';
 import ExtensionOfficer from './pages/ExtensionOfficer';
+import FarmGamePage from './pages/FarmGamePage';
 
 function AppLayout({ children }) {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/onboarding';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/onboarding' || location.pathname === '/game';
 
   return (
     <div className="min-h-screen bg-cream-100 flex flex-col font-sans selection:bg-wheat-200">
@@ -56,6 +57,7 @@ export default function App() {
                 <Route path="/plan" element={<ProtectedRoute><RotationPlan /></ProtectedRoute>} />
                 <Route path="/season" element={<ProtectedRoute><SeasonCompanion /></ProtectedRoute>} />
                 <Route path="/timemachine" element={<ProtectedRoute><TimeMachinePage /></ProtectedRoute>} />
+                <Route path="/game" element={<ProtectedRoute><FarmGamePage /></ProtectedRoute>} />
                 <Route path="/talk" element={<ProtectedRoute><TalkPage /></ProtectedRoute>} />
                 <Route path="/data-check" element={<DataCheckPage />} />
                 <Route path="/sources" element={<SourcesCreditsPage />} />

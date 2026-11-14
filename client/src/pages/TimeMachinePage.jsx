@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useField } from '../context/FieldContext';
 import { useTranslation } from 'react-i18next';
 import { timeMachineAPI } from '../services/api';
@@ -132,12 +132,19 @@ export default function TimeMachinePage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            to="/game"
+            className="px-3 py-2 bg-stone-950 hover:bg-stone-900 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-display font-extrabold shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+          >
+            <span>🎮</span>
+            <span>{isTamil ? 'விவசாய விளையாட்டு' : 'Play Game'}</span>
+          </Link>
           <button
             onClick={() => setIsFullScreenSim(true)}
             className="px-3 py-2 bg-emerald-800 hover:bg-emerald-900 text-cream-50 rounded-xl text-xs font-extrabold shadow-sm flex items-center gap-1.5 active:scale-95 transition"
           >
             <Maximize2 className="w-4 h-4 text-emerald-300" />
-            <span>{isTamil ? 'முழுத்திரை மாதிரி' : 'Full Screen'}</span>
+            <span>{isTamil ? 'முழுத்திரை' : 'Full Screen'}</span>
           </button>
           <button
             onClick={handleOpenReport}

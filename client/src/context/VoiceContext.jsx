@@ -9,8 +9,99 @@ export function VoiceProvider({ children }) {
   const [transcript, setTranscript] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState([]);
 
   const recognitionRef = useRef(null);
+  const audioCtxRef = useRef(null);
+
+  // Initialize available voices and listen for voiceschanged event
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          setAvailableVoices(voices);
+        }
+      };
+
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
+  // Web Audio Context for Game Sound FX
+  const playSound = (type = 'chime') => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new AudioCtx();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === 'plant') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(520, now + 0.15);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } else if (type === 'water') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(700, now + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.25);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'coin') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, now); // B5
+        osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'harvest') {
+        // Joyful 3-tone victory chime
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'sine';
+          o.frequency.setValueAtTime(freq, now + idx * 0.08);
+          g.gain.setValueAtTime(0.2, now + idx * 0.08);
+          g.gain.exponentialRampToValueAtTime(0.005, now + idx * 0.08 + 0.3);
+          o.connect(g);
+          g.connect(ctx.destination);
+          o.start(now + idx * 0.08);
+          o.stop(now + idx * 0.08 + 0.35);
+        });
+      } else {
+        // default chime
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+    } catch (e) {
+      console.warn('Audio FX error', e);
+    }
+  };
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -83,28 +174,41 @@ export function VoiceProvider({ children }) {
 
   const speak = (text) => {
     if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel(); // Stop prior speech
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
+    try {
+      window.speechSynthesis.cancel(); // Stop prior speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95; // Clear natural pacing for farmers
+      utterance.pitch = 1.0;
 
-    const isTamil = i18n.language === 'ta' || /[\u0B80-\u0BFF]/.test(text);
-    utterance.lang = isTamil ? 'ta-IN' : 'en-US';
+      const isTamil = i18n.language === 'ta' || /[\u0B80-\u0BFF]/.test(text);
+      utterance.lang = isTamil ? 'ta-IN' : 'en-US';
 
-    // Pick Tamil voice if available in browser
-    if (isTamil) {
-      const voices = window.speechSynthesis.getVoices();
-      const tamilVoice = voices.find(v => v.lang.includes('ta') || v.name.toLowerCase().includes('tamil'));
-      if (tamilVoice) {
-        utterance.voice = tamilVoice;
+      // Pick best matching voice
+      const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
+      if (isTamil && voices.length > 0) {
+        const tamilVoice = voices.find(v => 
+          v.lang === 'ta-IN' || 
+          v.lang.startsWith('ta') || 
+          v.name.toLowerCase().includes('tamil') || 
+          v.name.toLowerCase().includes('valluvar')
+        );
+        if (tamilVoice) {
+          utterance.voice = tamilVoice;
+        }
       }
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = (e) => {
+        console.warn('TTS error', e);
+        setIsSpeaking(false);
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      console.warn('Speech synthesis failed', err);
+      setIsSpeaking(false);
     }
-
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    window.speechSynthesis.speak(utterance);
   };
 
   const stopSpeaking = () => {
@@ -123,7 +227,8 @@ export function VoiceProvider({ children }) {
       startListening,
       stopListening,
       speak,
-      stopSpeaking
+      stopSpeaking,
+      playSound
     }}>
       {children}
     </VoiceContext.Provider>

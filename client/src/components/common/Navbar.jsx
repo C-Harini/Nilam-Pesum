@@ -59,6 +59,16 @@ export default function Navbar() {
             </div>
           )}
 
+          {/* Farm Game 1-Click Launch Button */}
+          <Link
+            to="/game"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-display font-extrabold shadow-sm active:scale-95 transition"
+            title="விவசாய விளையாட்டு மாதிரி / Play Farm Game"
+          >
+            <span className="text-sm">🎮</span>
+            <span className="hidden sm:inline">{i18n.language === 'ta' ? 'விளையாட்டு' : 'Game Sim'}</span>
+          </Link>
+
           {/* Language Switcher Pill */}
           <button
             onClick={toggleLanguage}

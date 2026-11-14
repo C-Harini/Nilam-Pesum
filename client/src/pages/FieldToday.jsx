@@ -124,27 +124,33 @@ export default function FieldToday() {
         </div>
       </div>
 
-      {/* 1-Tap Shortcut to Full-Screen Visual Land Simulation */}
-      <div className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-3xl p-4 text-cream-50 shadow-tactile flex items-center justify-between border-2 border-emerald-600/40">
+      {/* 1-Tap Shortcut to Full-Screen Farm Game Simulation */}
+      <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-emerald-600 rounded-3xl p-4 text-stone-950 shadow-tactile flex items-center justify-between border-2 border-amber-300">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/30 flex items-center justify-center text-emerald-300 flex-shrink-0">
-            <Sparkles className="w-5 h-5 animate-pulse" />
+          <div className="w-12 h-12 rounded-2xl bg-stone-950 text-amber-400 flex items-center justify-center flex-shrink-0 text-2xl shadow-lg border border-amber-400/50">
+            🎮
           </div>
           <div>
-            <h3 className="font-display font-extrabold text-sm text-cream-50">
-              {isTamil ? '🌾 நில நேரடி மாதிரி (Full Screen)' : '🌾 Interactive Land Simulation'}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-stone-950 text-amber-300">
+                {isTamil ? 'முழுத்திரை விளையாட்டு' : 'Full Screen Game'}
+              </span>
+              <span className="text-[10px] font-bold text-stone-900">Tamil Voice+</span>
+            </div>
+            <h3 className="font-display font-extrabold text-base text-stone-950 mt-0.5">
+              {isTamil ? 'விவசாய விளையாட்டு மாதிரி' : 'Interactive Farm Game Simulation'}
             </h3>
-            <p className="text-[11px] text-emerald-200">
-              {isTamil ? 'உத்திகளைத் தேர்ந்தெடுத்து பயிர் & மண் மாற்றத்தை முழுத்திரையில் காணுங்கள்' : 'Visual field simulation with voice narration & strategy control'}
+            <p className="text-[11px] font-semibold text-stone-900 leading-snug">
+              {isTamil ? 'உத்திகளைத் தேர்வு செய்து, விதைத்து, நீர் பாய்ச்சி அறுவடை செய்யுங்கள்!' : 'Choose strategy quests, irrigate, bio-fertilize & harvest in full screen!'}
             </p>
           </div>
         </div>
         <Link
-          to="/timemachine?fullscreen=true"
-          className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-display font-extrabold text-xs shadow-tactile active:scale-95 transition flex items-center gap-1.5 flex-shrink-0"
+          to="/game"
+          className="px-4 py-3 rounded-2xl bg-stone-950 hover:bg-stone-900 text-amber-300 font-display font-extrabold text-xs shadow-tactile active:scale-95 transition flex items-center gap-1.5 flex-shrink-0 border border-amber-400/50"
         >
-          <span>{isTamil ? 'தொடங்கு' : 'Open'}</span>
-          <ArrowRight className="w-4 h-4" />
+          <span>{isTamil ? 'விளையாடு' : 'Play Game'}</span>
+          <ArrowRight className="w-4 h-4 text-amber-400" />
         </Link>
       </div>
 
