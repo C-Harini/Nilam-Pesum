@@ -5,22 +5,23 @@
 :root {
   --bg-cream: #FAF7F2;
   --soil-brown: #4A3525;
-  --field-green: #2E6F40;
-  --wheat-gold: #D4A343;
+  --semman-red: #8B3A2B;
+  --paddy-green: #1E5128;
+  --harvest-gold: #E9A128;
 }
 
 body {
   background-color: var(--bg-cream);
   color: var(--soil-brown);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Anek Tamil', 'Noto Sans Tamil', 'Inter', sans-serif;
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Accessible, tactile buttons */
+/* Accessible, tactile Tamil agrarian buttons */
 .btn-primary {
-  @apply min-h-[56px] px-6 py-3.5 bg-field-700 hover:bg-field-800 active:bg-field-900 text-cream-50 font-display font-semibold rounded-2xl shadow-tactile active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 select-none;
+  @apply min-h-[56px] px-6 py-3.5 bg-field-600 hover:bg-field-700 active:bg-field-800 text-cream-50 font-display font-semibold rounded-2xl shadow-tactile active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 select-none;
 }
 
 .btn-secondary {
@@ -33,7 +34,7 @@ body {
 
 /* Tactile Card styling */
 .card-heartland {
-  @apply bg-cream-50 border border-soil-100 rounded-3xl p-5 shadow-tactile transition-shadow hover:shadow-tactile-hover;
+  @apply bg-cream-50 border border-soil-200 rounded-3xl p-5 shadow-tactile transition-shadow hover:shadow-tactile-hover;
 }
 
 /* Leaflet map fix */

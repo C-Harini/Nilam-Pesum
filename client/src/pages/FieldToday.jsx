@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useField } from '../context/FieldContext';
 import { useVoice } from '../context/VoiceContext';
+import { useTranslation } from 'react-i18next';
 import DataPassportModal from '../components/common/DataPassportModal';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { Droplets, Thermometer, Sprout, ShieldAlert, Volume2, Info, ArrowUpRight, ArrowDownRight, CheckCircle2 } from 'lucide-react';
@@ -8,14 +9,19 @@ import { Droplets, Thermometer, Sprout, ShieldAlert, Volume2, Info, ArrowUpRight
 export default function FieldToday() {
   const { fieldToday, loading, error, refreshFieldData } = useField();
   const { speak, isSpeaking, stopSpeaking } = useVoice();
+  const { t, i18n } = useTranslation();
   const [activePassport, setActivePassport] = useState(null);
+
+  const isTamil = i18n.language === 'ta';
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-field-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <div className="text-sm font-bold text-soil-800">Retrieving NASA Agroclimatology Records...</div>
+          <div className="text-sm font-bold text-soil-800">
+            {isTamil ? 'நாசா புவி கண்காணிப்புத் தரவுகளைப் பெறுகிறது...' : 'Retrieving NASA Agroclimatology Records...'}
+          </div>
         </div>
       </div>
     );
@@ -26,23 +32,28 @@ export default function FieldToday() {
       <div className="p-6 text-center max-w-md mx-auto">
         <div className="card-heartland border-red-300">
           <ShieldAlert className="w-8 h-8 text-red-600 mx-auto mb-2" />
-          <h2 className="font-bold text-soil-900 mb-1">Could Not Load Field Data</h2>
-          <p className="text-xs text-soil-600 mb-4">{error || 'Please check that data/fields directory exists.'}</p>
+          <h2 className="font-bold text-soil-900 mb-1">
+            {isTamil ? 'வயல் தரவை ஏற்ற முடியவில்லை' : 'Could Not Load Field Data'}
+          </h2>
+          <p className="text-xs text-soil-600 mb-4">{error}</p>
           <button onClick={refreshFieldData} className="btn-primary py-2 text-xs">
-            Retry Connection
+            {isTamil ? 'மீண்டும் முயற்சிக்க' : 'Retry Connection'}
           </button>
         </div>
       </div>
     );
   }
 
-  const { metrics, passports, health, spokenSummary, fieldName, latestDate, mode } = fieldToday;
+  const { metrics, passports, health, spokenSummary, fieldName, latestDate } = fieldToday;
 
   const handleReadAloud = () => {
     if (isSpeaking) {
       stopSpeaking();
     } else {
-      speak(spokenSummary);
+      const summaryText = isTamil
+        ? `இன்றைய நில நிலவரம்: உங்கள் நிலத்தின் வேர் மண்டல மண் ஈரப்பதம் ${metrics.rootZoneWetnessPct}% ஆக உள்ளது. கடந்த 30 நாட்களில் ${metrics.rainfall30d.totalLast30dInches} அங்குல மழை பதிவாகியுள்ளது. நிலத்தின் தற்போதைய நிலை: ${health.status}.`
+        : spokenSummary;
+      speak(summaryText);
     }
   };
 
@@ -58,10 +69,10 @@ export default function FieldToday() {
       <div className="flex items-start justify-between">
         <div>
           <span className="text-[11px] uppercase font-bold tracking-wider text-soil-600">
-            Observation As Of {latestDate}
+            {isTamil ? `நாசா ஆய்வுத் தேதி: ${latestDate}` : `Observation As Of ${latestDate}`}
           </span>
           <h1 className="font-display font-extrabold text-2xl text-soil-900 leading-tight">
-            Field Today
+            {t('today.title')}
           </h1>
           <p className="text-xs font-semibold text-field-700">{fieldName}</p>
         </div>
@@ -76,7 +87,7 @@ export default function FieldToday() {
           }`}
         >
           <Volume2 className="w-4 h-4 text-field-700" />
-          <span>{isSpeaking ? 'Pause Audio' : 'Read Aloud'}</span>
+          <span>{isSpeaking ? t('today.pause_audio') : t('today.read_aloud')}</span>
         </button>
       </div>
 
@@ -97,7 +108,7 @@ export default function FieldToday() {
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <h3 className="font-display font-bold text-base text-soil-900">
-              Field Status: {health.status}
+              {isTamil ? 'வயலின் தற்போதைய நிலை' : 'Field Status'}: {health.status}
             </h3>
             <span
               className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full"
@@ -118,7 +129,9 @@ export default function FieldToday() {
         <div className="card-heartland flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold text-soil-600 uppercase">Root Wetness</span>
+              <span className="text-[11px] font-bold text-soil-600 uppercase">
+                {t('today.root_wetness')}
+              </span>
               <button
                 onClick={() => setActivePassport(passports.rootZoneWetness)}
                 className="text-soil-400 hover:text-field-700"
@@ -131,14 +144,14 @@ export default function FieldToday() {
               {metrics.rootZoneWetnessPct}%
             </div>
             <div className="text-[11px] text-soil-600 mt-0.5">
-              0-100cm profile saturation
+              {isTamil ? 'வேர் மண்டல மண் பூரித அளவு' : '0-100cm profile saturation'}
             </div>
           </div>
           <button
             onClick={() => setActivePassport(passports.rootZoneWetness)}
             className="mt-3 text-[11px] font-bold text-field-700 flex items-center gap-1 hover:underline"
           >
-            Data Passport <ArrowUpRight className="w-3 h-3" />
+            {t('today.passport_btn')} <ArrowUpRight className="w-3 h-3" />
           </button>
         </div>
 
@@ -146,7 +159,9 @@ export default function FieldToday() {
         <div className="card-heartland flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold text-soil-600 uppercase">30-Day Rain</span>
+              <span className="text-[11px] font-bold text-soil-600 uppercase">
+                {t('today.rainfall_30d')}
+              </span>
               <button
                 onClick={() => setActivePassport(passports.rainfall30d)}
                 className="text-soil-400 hover:text-field-700"
@@ -168,14 +183,14 @@ export default function FieldToday() {
                   <ArrowDownRight className="w-3 h-3" />{metrics.rainfall30d.diffPct}%
                 </span>
               )}
-              <span>vs normal ({metrics.rainfall30d.historicalAvg30dInches}")</span>
+              <span>{isTamil ? 'சராசரியை விட' : 'vs normal'}</span>
             </div>
           </div>
           <button
             onClick={() => setActivePassport(passports.rainfall30d)}
             className="mt-3 text-[11px] font-bold text-field-700 flex items-center gap-1 hover:underline"
           >
-            Data Passport <ArrowUpRight className="w-3 h-3" />
+            {t('today.passport_btn')} <ArrowUpRight className="w-3 h-3" />
           </button>
         </div>
 
@@ -183,7 +198,9 @@ export default function FieldToday() {
         <div className="card-heartland flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold text-soil-600 uppercase">Temperature</span>
+              <span className="text-[11px] font-bold text-soil-600 uppercase">
+                {t('today.temp_trend')}
+              </span>
               <button
                 onClick={() => setActivePassport(passports.temperature7d)}
                 className="text-soil-400 hover:text-field-700"
@@ -196,14 +213,14 @@ export default function FieldToday() {
               {metrics.temperature.currentF}°F
             </div>
             <div className="text-[11px] text-soil-600 mt-0.5">
-              High: {metrics.temperature.maxF}°F • Low: {metrics.temperature.minF}°F
+              {isTamil ? `அதிகபட்சம்: ${metrics.temperature.maxF}°F • குறைவு: ${metrics.temperature.minF}°F` : `High: ${metrics.temperature.maxF}°F • Low: ${metrics.temperature.minF}°F`}
             </div>
           </div>
           <button
             onClick={() => setActivePassport(passports.temperature7d)}
             className="mt-3 text-[11px] font-bold text-field-700 flex items-center gap-1 hover:underline"
           >
-            Data Passport <ArrowUpRight className="w-3 h-3" />
+            {t('today.passport_btn')} <ArrowUpRight className="w-3 h-3" />
           </button>
         </div>
 
@@ -211,7 +228,9 @@ export default function FieldToday() {
         <div className="card-heartland flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold text-soil-600 uppercase">Satellite NDVI</span>
+              <span className="text-[11px] font-bold text-soil-600 uppercase">
+                {t('today.ndvi')}
+              </span>
               <button
                 onClick={() => setActivePassport(passports.ndvi)}
                 className="text-soil-400 hover:text-field-700"
@@ -224,14 +243,16 @@ export default function FieldToday() {
               {metrics.ndvi ? metrics.ndvi.value.toFixed(3) : 'N/A'}
             </div>
             <div className="text-[11px] text-soil-600 mt-0.5">
-              {metrics.ndvi?.interpolated ? 'Interpolated estimate' : 'Measured satellite radiometry'}
+              {metrics.ndvi?.interpolated
+                ? (isTamil ? 'இடைச்செருகல் மதிப்பீடு' : 'Interpolated estimate')
+                : (isTamil ? 'MODIS நேரடி செயற்கைக்கோள் பதிவு' : 'Measured satellite radiometry')}
             </div>
           </div>
           <button
             onClick={() => setActivePassport(passports.ndvi)}
             className="mt-3 text-[11px] font-bold text-field-700 flex items-center gap-1 hover:underline"
           >
-            Data Passport <ArrowUpRight className="w-3 h-3" />
+            {t('today.passport_btn')} <ArrowUpRight className="w-3 h-3" />
           </button>
         </div>
       </div>
@@ -241,9 +262,11 @@ export default function FieldToday() {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-display font-bold text-sm text-soil-900">
-              7-Day Temperature Range (°F)
+              {isTamil ? '7-நாள் வெப்பநிலை போக்கு (°F)' : '7-Day Temperature Range (°F)'}
             </h3>
-            <p className="text-[11px] text-soil-600">Daily high and low observations via NASA POWER</p>
+            <p className="text-[11px] text-soil-600">
+              {isTamil ? 'நாசா POWER தினசரி வெப்பநிலை பதிவுகள்' : 'Daily high and low observations via NASA POWER'}
+            </p>
           </div>
           <Thermometer className="w-5 h-5 text-wheat-600" />
         </div>
@@ -269,26 +292,26 @@ export default function FieldToday() {
         <div className="card-heartland bg-cream-50 space-y-2">
           <div className="flex items-center justify-between">
             <h4 className="font-display font-bold text-xs text-soil-900 uppercase tracking-wider">
-              Soil Profile (USDA SSURGO Ground Truth)
+              {t('today.soil_profile')}
             </h4>
             <button
               onClick={() => setActivePassport(passports.soilProfile)}
               className="text-[11px] font-bold text-field-700 hover:underline flex items-center gap-1"
             >
-              Passport <ArrowUpRight className="w-3 h-3" />
+              {t('today.passport_btn')} <ArrowUpRight className="w-3 h-3" />
             </button>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
             <div className="bg-cream-200 p-2.5 rounded-xl border border-soil-300">
-              <div className="text-[10px] text-soil-600">Texture</div>
+              <div className="text-[10px] text-soil-600">{isTamil ? 'மண் வகை' : 'Texture'}</div>
               <div className="font-bold text-soil-900">{metrics.soil.texture}</div>
             </div>
             <div className="bg-cream-200 p-2.5 rounded-xl border border-soil-300">
-              <div className="text-[10px] text-soil-600">Organic Matter</div>
+              <div className="text-[10px] text-soil-600">{isTamil ? 'அங்கக கரிம அளவு' : 'Organic Matter'}</div>
               <div className="font-bold text-soil-900">{metrics.soil.organicMatterPct}%</div>
             </div>
             <div className="bg-cream-200 p-2.5 rounded-xl border border-soil-300">
-              <div className="text-[10px] text-soil-600">Avail. Water Cap.</div>
+              <div className="text-[10px] text-soil-600">{isTamil ? 'நீர் தக்கவைப்பு' : 'Avail. Water Cap.'}</div>
               <div className="font-bold text-soil-900">{metrics.soil.awcInches}"/ft</div>
             </div>
           </div>

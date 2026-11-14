@@ -1,8 +1,188 @@
 {
   "crops": [
     {
+      "id": "paddy",
+      "name": "Paddy / Rice (சம்பா நெல்)",
+      "tamilName": "சம்பா நெல்",
+      "type": "cash_crop",
+      "category": "grain",
+      "typicalYield": 52,
+      "yieldUnit": "quintals/acre",
+      "marketPricePerUnit": 22.50,
+      "inputCostPerAcre": 420,
+      "waterRequirementInches": 38.0,
+      "droughtTolerance": "low",
+      "gddBaseTempF": 50,
+      "gddToMaturity": 2400,
+      "plantingWindow": {
+        "start": "08-15",
+        "end": "10-15",
+        "optimalStart": "09-01",
+        "optimalEnd": "09-25",
+        "minSoilTempF": 65
+      },
+      "harvestWindow": {
+        "start": "01-10",
+        "end": "02-15"
+      },
+      "criticalStressWindows": [
+        {
+          "stage": "Panicle Initiation & Flowering",
+          "gddOffset": 1300,
+          "maxTempF": 95,
+          "vulnerability": "spikelet_sterility"
+        }
+      ],
+      "nitrogenEffectLbsPerAcre": -110,
+      "pestBreakValue": 40,
+      "erosionProtectionScore": 85,
+      "compatiblePrecedingCrops": ["black_gram", "green_gram", "sunn_hemp", "sesame"],
+      "incompatiblePrecedingCrops": [],
+      "description": "Primary staple food crop of the Cauvery Delta, grown under standing shallow water with high water and nutrient demand."
+    },
+    {
+      "id": "black_gram",
+      "name": "Black Gram / Urad (உளுந்து)",
+      "tamilName": "உளுந்து",
+      "type": "legume",
+      "category": "pulse",
+      "typicalYield": 6.5,
+      "yieldUnit": "quintals/acre",
+      "marketPricePerUnit": 78.0,
+      "inputCostPerAcre": 140,
+      "waterRequirementInches": 11.0,
+      "droughtTolerance": "high",
+      "gddBaseTempF": 50,
+      "gddToMaturity": 1350,
+      "plantingWindow": {
+        "start": "01-15",
+        "end": "02-28",
+        "optimalStart": "01-20",
+        "optimalEnd": "02-10",
+        "minSoilTempF": 60
+      },
+      "harvestWindow": {
+        "start": "04-01",
+        "end": "04-30"
+      },
+      "criticalStressWindows": [
+        {
+          "stage": "Pod Filling",
+          "gddOffset": 850,
+          "maxTempF": 98,
+          "vulnerability": "flower_drop"
+        }
+      ],
+      "nitrogenEffectLbsPerAcre": 55,
+      "pestBreakValue": 85,
+      "erosionProtectionScore": 75,
+      "compatiblePrecedingCrops": ["paddy"],
+      "incompatiblePrecedingCrops": ["black_gram"],
+      "description": "Essential Cauvery Delta relay pulse; seeded directly into standing rice stubble using residual soil moisture. Fixes +55 lbs of biological nitrogen."
+    },
+    {
+      "id": "sesame",
+      "name": "Sesame / Gingelly (எள்)",
+      "tamilName": "எள்",
+      "type": "cash_crop",
+      "category": "oilseed",
+      "typicalYield": 4.5,
+      "yieldUnit": "quintals/acre",
+      "marketPricePerUnit": 115.0,
+      "inputCostPerAcre": 110,
+      "waterRequirementInches": 9.5,
+      "droughtTolerance": "very_high",
+      "gddBaseTempF": 55,
+      "gddToMaturity": 1450,
+      "plantingWindow": {
+        "start": "02-15",
+        "end": "03-31",
+        "optimalStart": "03-01",
+        "optimalEnd": "03-20",
+        "minSoilTempF": 65
+      },
+      "harvestWindow": {
+        "start": "05-20",
+        "end": "06-25"
+      },
+      "criticalStressWindows": [],
+      "nitrogenEffectLbsPerAcre": -20,
+      "pestBreakValue": 80,
+      "erosionProtectionScore": 60,
+      "compatiblePrecedingCrops": ["black_gram", "paddy"],
+      "incompatiblePrecedingCrops": [],
+      "description": "Highly drought-tolerant summer oilseed thriving in drying delta soils; breaks rice weed and insect cycles."
+    },
+    {
+      "id": "sunn_hemp",
+      "name": "Sunn Hemp Green Manure (சணப்பை)",
+      "tamilName": "சணப்பை",
+      "type": "cover_crop",
+      "category": "cover_legume",
+      "typicalYield": 0,
+      "yieldUnit": "biomass",
+      "marketPricePerUnit": 0.0,
+      "inputCostPerAcre": 45,
+      "waterRequirementInches": 6.0,
+      "droughtTolerance": "high",
+      "gddBaseTempF": 45,
+      "gddToMaturity": 900,
+      "plantingWindow": {
+        "start": "05-01",
+        "end": "07-15",
+        "optimalStart": "05-15",
+        "optimalEnd": "06-15",
+        "minSoilTempF": 60
+      },
+      "harvestWindow": {
+        "start": "07-01",
+        "end": "08-10"
+      },
+      "criticalStressWindows": [],
+      "nitrogenEffectLbsPerAcre": 80,
+      "pestBreakValue": 90,
+      "erosionProtectionScore": 90,
+      "compatiblePrecedingCrops": ["paddy", "sesame"],
+      "incompatiblePrecedingCrops": [],
+      "description": "Rapidly growing green manure legume incorporated into flooded rice paddies ahead of Samba transplanting, adding +80 lbs N."
+    },
+    {
+      "id": "groundnut",
+      "name": "Groundnut / Peanut (நிலக்கடலை)",
+      "tamilName": "நிலக்கடலை",
+      "type": "legume",
+      "category": "oilseed",
+      "typicalYield": 18,
+      "yieldUnit": "quintals/acre",
+      "marketPricePerUnit": 65.0,
+      "inputCostPerAcre": 320,
+      "waterRequirementInches": 19.0,
+      "droughtTolerance": "high",
+      "gddBaseTempF": 52,
+      "gddToMaturity": 2100,
+      "plantingWindow": {
+        "start": "06-15",
+        "end": "07-31",
+        "optimalStart": "07-01",
+        "optimalEnd": "07-20",
+        "minSoilTempF": 65
+      },
+      "harvestWindow": {
+        "start": "10-15",
+        "end": "11-20"
+      },
+      "criticalStressWindows": [],
+      "nitrogenEffectLbsPerAcre": 50,
+      "pestBreakValue": 80,
+      "erosionProtectionScore": 70,
+      "compatiblePrecedingCrops": ["paddy", "sesame"],
+      "incompatiblePrecedingCrops": ["groundnut"],
+      "description": "Major Tamil Nadu oilseed fixing +50 lbs N/acre while providing nutritious food and livestock haulm."
+    },
+    {
       "id": "corn",
-      "name": "Corn (Maize)",
+      "name": "Corn / Maize (மக்காச்சோளம்)",
+      "tamilName": "மக்காச்சோளம்",
       "type": "cash_crop",
       "category": "grain",
       "typicalYield": 185,
@@ -30,24 +210,19 @@
           "gddOffset": 1250,
           "maxTempF": 95,
           "vulnerability": "severe_yield_loss"
-        },
-        {
-          "stage": "Grain Fill (R2-R3)",
-          "gddOffset": 1650,
-          "maxTempF": 92,
-          "vulnerability": "kernel_abortion"
         }
       ],
       "nitrogenEffectLbsPerAcre": -165,
       "pestBreakValue": 20,
       "erosionProtectionScore": 60,
-      "compatiblePrecedingCrops": ["soybean", "alfalfa", "crimson_clover", "cereal_rye"],
+      "compatiblePrecedingCrops": ["soybean", "alfalfa", "crimson_clover", "cereal_rye", "black_gram"],
       "incompatiblePrecedingCrops": ["corn"],
-      "description": "High-yielding primary feed and fuel crop with substantial nitrogen and water demands during pollination."
+      "description": "High-yielding grain with substantial nitrogen and water demands."
     },
     {
       "id": "soybean",
-      "name": "Soybean",
+      "name": "Soybean (சோயாபீன்ஸ்)",
+      "tamilName": "சோயாபீன்ஸ்",
       "type": "legume",
       "category": "oilseed",
       "typicalYield": 55,
@@ -69,30 +244,18 @@
         "start": "09-25",
         "end": "10-31"
       },
-      "criticalStressWindows": [
-        {
-          "stage": "Pod Development (R3-R4)",
-          "gddOffset": 1400,
-          "maxTempF": 93,
-          "vulnerability": "flower_abortion"
-        },
-        {
-          "stage": "Seed Fill (R5)",
-          "gddOffset": 1800,
-          "maxTempF": 92,
-          "vulnerability": "seed_weight_reduction"
-        }
-      ],
+      "criticalStressWindows": [],
       "nitrogenEffectLbsPerAcre": 45,
       "pestBreakValue": 75,
       "erosionProtectionScore": 55,
-      "compatiblePrecedingCrops": ["corn", "winter_wheat", "oats", "cereal_rye"],
+      "compatiblePrecedingCrops": ["corn", "winter_wheat", "oats", "paddy"],
       "incompatiblePrecedingCrops": ["soybean"],
-      "description": "Nitrogen-fixing legume providing a vital pest break against corn rootworm while replenishing soil nitrogen."
+      "description": "Nitrogen-fixing legume replenishing soil nitrogen."
     },
     {
       "id": "winter_wheat",
-      "name": "Winter Wheat",
+      "name": "Winter Wheat (கோதுமை)",
+      "tamilName": "கோதுமை",
       "type": "cash_crop",
       "category": "small_grain",
       "typicalYield": 75,
@@ -114,24 +277,18 @@
         "start": "06-25",
         "end": "07-20"
       },
-      "criticalStressWindows": [
-        {
-          "stage": "Heading & Anthesis",
-          "gddOffset": 1100,
-          "maxTempF": 88,
-          "vulnerability": "sterility_and_shrivel"
-        }
-      ],
+      "criticalStressWindows": [],
       "nitrogenEffectLbsPerAcre": -60,
       "pestBreakValue": 85,
       "erosionProtectionScore": 85,
-      "compatiblePrecedingCrops": ["soybean", "oats", "sorghum"],
+      "compatiblePrecedingCrops": ["soybean", "oats"],
       "incompatiblePrecedingCrops": ["winter_wheat"],
-      "description": "Overwintering small grain that protects topsoil from spring runoff, spreads seasonal labor, and breaks weed cycles."
+      "description": "Overwintering grain protecting topsoil."
     },
     {
       "id": "oats",
       "name": "Spring Oats",
+      "tamilName": "ஓட்ஸ்",
       "type": "cash_crop",
       "category": "small_grain",
       "typicalYield": 95,
@@ -153,24 +310,18 @@
         "start": "07-15",
         "end": "08-10"
       },
-      "criticalStressWindows": [
-        {
-          "stage": "Boot to Heading",
-          "gddOffset": 950,
-          "maxTempF": 86,
-          "vulnerability": "lodging_and_blight"
-        }
-      ],
+      "criticalStressWindows": [],
       "nitrogenEffectLbsPerAcre": -45,
       "pestBreakValue": 80,
       "erosionProtectionScore": 75,
-      "compatiblePrecedingCrops": ["corn", "soybean", "alfalfa"],
+      "compatiblePrecedingCrops": ["corn", "soybean"],
       "incompatiblePrecedingCrops": ["oats"],
-      "description": "Cool-season early spring grain with low input requirements and excellent weed suppression."
+      "description": "Early cool-season grain with low input requirements."
     },
     {
       "id": "alfalfa",
-      "name": "Alfalfa (Perennial Forage)",
+      "name": "Alfalfa (குதிரை மசால்)",
+      "tamilName": "குதிரை மசால்",
       "type": "legume",
       "category": "forage",
       "typicalYield": 4.5,
@@ -192,24 +343,18 @@
         "start": "06-01",
         "end": "09-15"
       },
-      "criticalStressWindows": [
-        {
-          "stage": "Mid-summer re-growth",
-          "gddOffset": 1500,
-          "maxTempF": 98,
-          "vulnerability": "dormancy"
-        }
-      ],
+      "criticalStressWindows": [],
       "nitrogenEffectLbsPerAcre": 130,
       "pestBreakValue": 95,
       "erosionProtectionScore": 95,
-      "compatiblePrecedingCrops": ["corn", "oats", "wheat"],
+      "compatiblePrecedingCrops": ["corn", "oats"],
       "incompatiblePrecedingCrops": ["alfalfa"],
-      "description": "Deep-rooting perennial legume that breaks deep subsoil hardpans, fixes significant nitrogen, and produces premium forage."
+      "description": "Perennial forage legume fixing large amounts of nitrogen."
     },
     {
       "id": "sorghum",
-      "name": "Grain Sorghum (Milo)",
+      "name": "Grain Sorghum / Milo (சோளம்)",
+      "tamilName": "சோளம்",
       "type": "cash_crop",
       "category": "grain",
       "typicalYield": 110,
@@ -231,28 +376,22 @@
         "start": "10-01",
         "end": "11-15"
       },
-      "criticalStressWindows": [
-        {
-          "stage": "Flowering",
-          "gddOffset": 1300,
-          "maxTempF": 98,
-          "vulnerability": "pollen_desiccation"
-        }
-      ],
+      "criticalStressWindows": [],
       "nitrogenEffectLbsPerAcre": -100,
       "pestBreakValue": 70,
       "erosionProtectionScore": 65,
-      "compatiblePrecedingCrops": ["soybean", "alfalfa", "crimson_clover"],
+      "compatiblePrecedingCrops": ["soybean", "paddy"],
       "incompatiblePrecedingCrops": ["sorghum"],
-      "description": "Exceptional drought-resilient grain with low water requirements, ideal for dry seasons or sandy soil patches."
+      "description": "Drought-resilient grain with minimal water requirements."
     },
     {
       "id": "cereal_rye",
-      "name": "Cereal Rye (Cover Crop)",
+      "name": "Cereal Rye Cover (மூடு பயிர்)",
+      "tamilName": "மூடு பயிர்",
       "type": "cover_crop",
       "category": "cover",
       "typicalYield": 0,
-      "yieldUnit": "cover biomass",
+      "yieldUnit": "biomass",
       "marketPricePerUnit": 0.0,
       "inputCostPerAcre": 65,
       "waterRequirementInches": 6.0,
@@ -274,17 +413,18 @@
       "nitrogenEffectLbsPerAcre": 25,
       "pestBreakValue": 80,
       "erosionProtectionScore": 95,
-      "compatiblePrecedingCrops": ["corn", "soybean", "sorghum"],
+      "compatiblePrecedingCrops": ["corn", "soybean", "paddy"],
       "incompatiblePrecedingCrops": [],
-      "description": "Hardy winter cover crop that scavenges residual nitrates, builds organic matter, suppresses weeds, and halts winter erosion."
+      "description": "Winter cover crop scavenging nitrates and halting topsoil runoff."
     },
     {
       "id": "crimson_clover",
-      "name": "Crimson Clover (Cover Crop)",
+      "name": "Crimson Clover (கவர் பயிர்)",
+      "tamilName": "கவர் பயிர்",
       "type": "cover_crop",
       "category": "cover_legume",
       "typicalYield": 0,
-      "yieldUnit": "cover biomass",
+      "yieldUnit": "biomass",
       "marketPricePerUnit": 0.0,
       "inputCostPerAcre": 75,
       "waterRequirementInches": 7.5,
@@ -306,9 +446,9 @@
       "nitrogenEffectLbsPerAcre": 85,
       "pestBreakValue": 85,
       "erosionProtectionScore": 90,
-      "compatiblePrecedingCrops": ["corn", "winter_wheat", "oats"],
+      "compatiblePrecedingCrops": ["corn", "soybean"],
       "incompatiblePrecedingCrops": [],
-      "description": "Rapid-establishing winter annual legume that fixes up to 85-100 lbs of biological nitrogen ahead of spring corn."
+      "description": "Winter annual legume fixing biological nitrogen."
     }
   ]
 }

@@ -17,7 +17,40 @@ class RotationEngine {
     const climateNormals = this.calculateClimateNormals(powerRecords);
 
     // Candidates of viable crop sequences (Year 1 -> Year 2 -> Year 3)
-    const candidates = [
+    const isTamilField = fieldId === 'field_tn01' || currentCrop === 'paddy' || (soilData && soilData.surveyArea && soilData.surveyArea.includes('Tamil Nadu'));
+
+    const candidates = isTamilField ? [
+      {
+        id: 'rot_paddy_blackgram_sesame',
+        name: 'சம்பா நெல் → உளுந்து → எள் (Samba Paddy → Black Gram → Sesame)',
+        sequence: ['paddy', 'black_gram', 'sesame'],
+        description: 'காவிரி டெல்டாவின் சிறந்த பயிர் சுழற்சி. நெல்லுக்குப் பின் உளுந்து தழைச்சத்தை கூட்டி பூச்சி சுழற்சியை உடைக்கிறது; கோடையில் எள் அதிக வருமானம் தருகிறது.'
+      },
+      {
+        id: 'rot_sunnhemp_paddy_blackgram',
+        name: 'சணப்பை (பசுந்தாள் உரம்) → சம்பா நெல் → உளுந்து',
+        sequence: ['sunn_hemp', 'paddy', 'black_gram'],
+        description: 'சணப்பை பசுந்தாள் உரம் ஏக்கருக்கு +80 பவுண்டு இயற்கை தழைச்சத்தை வழங்கி மண் வளத்தை பன்மடங்கு பெருக்குகிறது.'
+      },
+      {
+        id: 'rot_paddy_groundnut_sesame',
+        name: 'சம்பா நெல் → நிலக்கடலை → எள் (Paddy → Groundnut → Sesame)',
+        sequence: ['paddy', 'groundnut', 'sesame'],
+        description: 'அதிக சந்தை லாபம் தரும் எண்ணெய்வித்து பயிர் சுழற்சி; நிலக்கடலை வேர் முடிச்சுகள் மண்ணில் இயற்கை தழைச்சத்தை சேர்க்கிறது.'
+      },
+      {
+        id: 'rot_paddy_paddy_blackgram',
+        name: 'குறுவை நெல் → சம்பா நெல் → உளுந்து (Cauvery Double Crop)',
+        sequence: ['paddy', 'paddy', 'black_gram'],
+        description: 'பாசன வசதியுள்ள டெல்டா நிலங்களுக்கான இருபோக நெல் மற்றும் உளுந்து சுழற்சி திட்டம்.'
+      },
+      {
+        id: 'rot_continuous_paddy',
+        name: 'தொடர் நெல் சாகுபடி (Continuous Paddy - Benchmark)',
+        sequence: ['paddy', 'paddy', 'paddy'],
+        description: 'ஒரே பயிரைத் தொடர்ந்து சாகுபடி செய்யும் முறை; தழைச்சத்து பற்றாக்குறை மற்றும் பூச்சி தாக்குதல் அபாயம் அதிகம்.'
+      }
+    ] : [
       {
         id: 'rot_corn_soy_rye',
         name: 'Corn → Soybean + Cereal Rye Cover → Corn',

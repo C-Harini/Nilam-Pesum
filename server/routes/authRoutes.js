@@ -146,36 +146,36 @@ router.post('/login', async (req, res) => {
  */
 router.post('/demo', async (req, res) => {
   try {
-    const demoPhone = '5155550199';
+    const demoPhone = '9443312345';
     let demoUser = await UserModel.findByPhone(demoPhone);
     if (!demoUser) {
       demoUser = await UserModel.create({
         phone: demoPhone,
         pin: '1234',
-        name: 'John Miller (Pioneer Farm)'
+        name: 'முத்துவேல் (Muthuvel - Thanjavur)'
       });
 
       await FieldProfileModel.createOrUpdate(demoUser._id, {
         userId: demoUser._id,
         phone: demoUser.phone,
-        name: 'Story County Pioneer Field',
-        county: 'Story',
-        state: 'Iowa',
-        fieldId: 'field01',
-        location: { lat: 42.0308, lng: -93.6319 },
-        areaAcres: 160,
+        name: 'தஞ்சாவூர் காவிரி டெல்டா வயல் (Thanjavur Delta Farm)',
+        county: 'Thanjavur (தஞ்சாவூர்)',
+        state: 'Tamil Nadu',
+        fieldId: 'field_tn01',
+        location: { lat: 10.7870, lng: 79.1378 },
+        areaAcres: 5,
         soil: {
-          texture: 'Silt loam',
-          organicMatterPct: 3.8,
-          pH: 6.5,
-          drainage: 'Well drained',
-          awcInches: 2.4,
-          source: 'USDA NRCS SSURGO'
+          texture: 'Alluvial Clay Loam (வண்டல் மண்)',
+          organicMatterPct: 1.8,
+          pH: 7.2,
+          drainage: 'Moderately well drained',
+          awcInches: 2.5,
+          source: 'TNAU / ICAR Soil Survey'
         },
-        waterSource: 'rainfed',
-        currentCrop: 'corn',
-        previousCrops: ['soybean', 'corn', 'soybean'],
-        priorities: ['Protect my soil', 'Lower my risk', 'Earn more']
+        waterSource: 'irrigated',
+        currentCrop: 'paddy',
+        previousCrops: ['black_gram', 'paddy', 'sesame'],
+        priorities: ['Protect my soil', 'Earn more', 'Save water']
       });
     }
 
@@ -189,7 +189,7 @@ router.post('/demo', async (req, res) => {
       message: 'Judge Demo Session Activated',
       token,
       user: { id: demoUser._id, phone: demoUser.phone, name: demoUser.name },
-      greeting: 'Welcome Judge to Nilam Pesum! Replaying real NASA datasets for Story County, Iowa.'
+      greeting: 'வணக்கம்! நிலம் பேசும் தளத்திற்கு நல்வரவு. தஞ்சாவூர் காவிரி டெல்டா வயல் நாசா நேரடித் தரவுகளுடன் தயாராக உள்ளது.'
     });
   } catch (err) {
     return res.status(500).json({ error: 'Demo activation error: ' + err.message });

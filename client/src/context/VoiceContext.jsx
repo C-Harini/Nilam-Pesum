@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const VoiceContext = createContext();
 
 export function VoiceProvider({ children }) {
+  const { i18n } = useTranslation();
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -17,7 +19,8 @@ export function VoiceProvider({ children }) {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      // Set recognition language based on current i18n language
+      recognition.lang = i18n.language === 'ta' ? 'ta-IN' : 'en-US';
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -44,12 +47,13 @@ export function VoiceProvider({ children }) {
     } else {
       setSpeechSupported(false);
     }
-  }, []);
+  }, [i18n.language]);
 
   const startListening = (onFinal) => {
     if (!recognitionRef.current) return;
     setTranscript('');
     try {
+      recognitionRef.current.lang = i18n.language === 'ta' ? 'ta-IN' : 'en-US';
       recognitionRef.current.onresult = (event) => {
         let current = '';
         let isFinal = false;
@@ -83,7 +87,18 @@ export function VoiceProvider({ children }) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
-    utterance.lang = 'en-US';
+
+    const isTamil = i18n.language === 'ta' || /[\u0B80-\u0BFF]/.test(text);
+    utterance.lang = isTamil ? 'ta-IN' : 'en-US';
+
+    // Pick Tamil voice if available in browser
+    if (isTamil) {
+      const voices = window.speechSynthesis.getVoices();
+      const tamilVoice = voices.find(v => v.lang.includes('ta') || v.name.toLowerCase().includes('tamil'));
+      if (tamilVoice) {
+        utterance.voice = tamilVoice;
+      }
+    }
 
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);

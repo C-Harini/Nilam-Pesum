@@ -1,0 +1,28 @@
+{
+  "fieldId": "field_tn01",
+  "name": "தஞ்சாவூர் காவிரி டெல்டா வயல் (Thanjavur Delta Farm)",
+  "farmerName": "முத்துவேல் (Muthuvel)",
+  "county": "Thanjavur (தஞ்சாவூர்)",
+  "state": "Tamil Nadu",
+  "country": "India",
+  "location": {
+    "lat": 10.787,
+    "lng": 79.1378
+  },
+  "areaAcres": 5,
+  "waterSource": "irrigated",
+  "currentCrop": "paddy",
+  "previousCrops": [
+    "black_gram",
+    "paddy",
+    "sesame"
+  ],
+  "priorities": [
+    "Protect my soil",
+    "Earn more",
+    "Save water"
+  ],
+  "elevationMeters": 42,
+  "lastRefreshed": "2026-11-14T12:07:03.816Z",
+  "dataSource": "Official NASA POWER & MODIS Terra Archives (Thanjavur, Tamil Nadu)"
+}

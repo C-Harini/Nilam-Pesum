@@ -4,7 +4,7 @@ import { fieldAPI, profileAPI } from '../services/api';
 const FieldContext = createContext();
 
 export function FieldProvider({ children }) {
-  const [currentFieldId, setCurrentFieldId] = useState('field01');
+  const [currentFieldId, setCurrentFieldId] = useState('field_tn01');
   const [fieldToday, setFieldToday] = useState(null);
   const [fieldList, setFieldList] = useState([]);
   const [profile, setProfile] = useState(null);

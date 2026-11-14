@@ -1,0 +1,18 @@
+{
+  "fieldId": "field_tn01",
+  "source": "TNAU Soil Survey / ICAR Soil Profile Database (Cauvery Alluvial Tract)",
+  "retrievalDate": "2024-11-20",
+  "surveyArea": "Thanjavur Delta Zone, Tamil Nadu",
+  "mapUnitSymbol": "CDZ-04",
+  "mapUnitName": "Cauvery Alluvial Clay Loam (வண்டல் களிமண்)",
+  "texture": "Alluvial Clay Loam (வண்டல் மண்)",
+  "organicMatterPct": 1.8,
+  "pH": 7.2,
+  "drainage": "Moderately well drained",
+  "awcInches": 2.5,
+  "hydrologicSoilGroup": "C",
+  "slopePct": 0.5,
+  "depthToWaterTableInches": 36,
+  "cationExchangeCapacity": 28.0,
+  "officialUrl": "https://agritech.tnau.ac.in/"
+}
