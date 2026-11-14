@@ -143,6 +143,48 @@ class AppEEARSService {
   }
 
   /**
+   * List files in completed task bundle
+   */
+  async getTaskBundle(taskId) {
+    const token = await this.login();
+    if (!token) return { success: false, error: 'Unauthorized' };
+
+    try {
+      const res = await axios.get(`${APPEEARS_API_BASE}/bundle/${taskId}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        timeout: 15000
+      });
+
+      return {
+        success: true,
+        files: res.data.files || []
+      };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Download a specific file from task bundle
+   */
+  async downloadBundleFile(taskId, fileId) {
+    const token = await this.login();
+    if (!token) return { success: false, error: 'Unauthorized' };
+
+    try {
+      const res = await axios.get(`${APPEEARS_API_BASE}/bundle/${taskId}/${fileId}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        responseType: 'text',
+        timeout: 30000
+      });
+
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
    * Parse downloaded NDVI records and save to ndvi.csv
    */
   saveNdviRecords(fieldDir, records) {

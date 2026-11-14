@@ -1,11 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useField } from '../context/FieldContext';
+import { useTranslation } from 'react-i18next';
 import { timeMachineAPI } from '../services/api';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
-import { Clock, Play, Pause, SkipForward, FastForward, Award, ShieldAlert, CheckCircle2, Image as ImageIcon, Sparkles, X, Info } from 'lucide-react';
+import { Clock, Play, Pause, SkipForward, FastForward, Award, ShieldAlert, CheckCircle2, Image as ImageIcon, Sparkles, X, Info, Maximize2 } from 'lucide-react';
+import VisualLandSimulation from '../components/simulation/VisualLandSimulation';
 
 export default function TimeMachinePage() {
   const { currentFieldId } = useField();
+  const { t, i18n } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const isTamil = i18n.language === 'ta';
+
+  // Full Screen Simulation State (auto-open if ?fullscreen=true)
+  const [isFullScreenSim, setIsFullScreenSim] = useState(searchParams.get('fullscreen') === 'true');
 
   // Replay range for 2023 historical season
   const SEASON_START = '2023-04-15';
@@ -107,7 +116,7 @@ export default function TimeMachinePage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-6 pb-28 space-y-6">
-      {/* Historical Demonstration Banner */}
+      {/* Historical Demonstration Banner with Full Screen Simulation Trigger */}
       <div className="bg-gradient-to-r from-wheat-500 to-wheat-600 rounded-3xl p-4 text-soil-900 shadow-tactile flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-soil-900 text-wheat-300 flex items-center justify-center flex-shrink-0">
@@ -118,18 +127,33 @@ export default function TimeMachinePage() {
               Flagship Innovation Feature
             </div>
             <h1 className="font-display font-extrabold text-lg leading-tight text-soil-950">
-              Agricultural Time Machine
+              {isTamil ? 'விவசாய கால இயந்திரம்' : 'Agricultural Time Machine'}
             </h1>
           </div>
         </div>
-        <button
-          onClick={handleOpenReport}
-          className="px-3 py-2 bg-cream-50 hover:bg-cream-100 text-soil-900 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1 active:scale-95 transition"
-        >
-          <Award className="w-4 h-4 text-wheat-600" />
-          <span className="hidden sm:inline">Season Report</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsFullScreenSim(true)}
+            className="px-3 py-2 bg-emerald-800 hover:bg-emerald-900 text-cream-50 rounded-xl text-xs font-extrabold shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+          >
+            <Maximize2 className="w-4 h-4 text-emerald-300" />
+            <span>{isTamil ? 'முழுத்திரை மாதிரி' : 'Full Screen'}</span>
+          </button>
+          <button
+            onClick={handleOpenReport}
+            className="px-3 py-2 bg-cream-50 hover:bg-cream-100 text-soil-900 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1 active:scale-95 transition"
+          >
+            <Award className="w-4 h-4 text-wheat-600" />
+            <span className="hidden sm:inline">{isTamil ? 'அறிக்கை' : 'Report'}</span>
+          </button>
+        </div>
       </div>
+
+      {/* Visual Living Land Simulation (Interactive Farmer View) */}
+      <VisualLandSimulation 
+        isFullScreenMode={isFullScreenSim} 
+        onToggleFullScreen={() => setIsFullScreenSim(!isFullScreenSim)} 
+      />
 
       {/* Official Data Notice */}
       <div className="text-center text-xs font-bold text-soil-700 bg-cream-50 border border-soil-200 rounded-2xl py-2 px-3">

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useField } from '../context/FieldContext';
 import { useVoice } from '../context/VoiceContext';
 import { useTranslation } from 'react-i18next';
 import DataPassportModal from '../components/common/DataPassportModal';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Droplets, Thermometer, Sprout, ShieldAlert, Volume2, Info, ArrowUpRight, ArrowDownRight, CheckCircle2 } from 'lucide-react';
+import { Droplets, Thermometer, Sprout, ShieldAlert, Volume2, Info, ArrowUpRight, ArrowDownRight, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function FieldToday() {
   const { fieldToday, loading, error, refreshFieldData } = useField();
@@ -121,6 +122,30 @@ export default function FieldToday() {
             {health.summary}
           </p>
         </div>
+      </div>
+
+      {/* 1-Tap Shortcut to Full-Screen Visual Land Simulation */}
+      <div className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-3xl p-4 text-cream-50 shadow-tactile flex items-center justify-between border-2 border-emerald-600/40">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500/30 flex items-center justify-center text-emerald-300 flex-shrink-0">
+            <Sparkles className="w-5 h-5 animate-pulse" />
+          </div>
+          <div>
+            <h3 className="font-display font-extrabold text-sm text-cream-50">
+              {isTamil ? '🌾 நில நேரடி மாதிரி (Full Screen)' : '🌾 Interactive Land Simulation'}
+            </h3>
+            <p className="text-[11px] text-emerald-200">
+              {isTamil ? 'உத்திகளைத் தேர்ந்தெடுத்து பயிர் & மண் மாற்றத்தை முழுத்திரையில் காணுங்கள்' : 'Visual field simulation with voice narration & strategy control'}
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/timemachine?fullscreen=true"
+          className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-display font-extrabold text-xs shadow-tactile active:scale-95 transition flex items-center gap-1.5 flex-shrink-0"
+        >
+          <span>{isTamil ? 'தொடங்கு' : 'Open'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {/* 2x2 Primary Measurements Grid */}

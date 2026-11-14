@@ -3,6 +3,8 @@ const path = require('path');
 const powerService = require('./powerService');
 const appeearsService = require('./appeearsService');
 const gibsService = require('./gibsService');
+const smapService = require('./smapService');
+const imergService = require('./imergService');
 const dataValidator = require('../data/dataValidator');
 
 const DATA_ROOT = path.resolve(__dirname, '../../../data');
@@ -42,7 +44,7 @@ class DataRefreshPipeline {
 
     // 1. Refresh NASA POWER Daily Agroclimatology
     try {
-      console.log(`[Step 1/3] Refreshing NASA POWER Daily Data (Lat: ${lat}, Lng: ${lng})...`);
+      console.log(`[Step 1/5] Refreshing NASA POWER Daily Data (Lat: ${lat}, Lng: ${lng})...`);
       const startDate = options.startDate || '20220101';
       const endDate = options.endDate || '20241031';
 
@@ -59,7 +61,8 @@ class DataRefreshPipeline {
         summary.successful.push({
           source: 'NASA POWER Daily Point API',
           records: powerResult.records.length,
-          dateRange: `${powerResult.records[0].date} to ${powerResult.records[powerResult.records.length - 1].date}`
+          dateRange: `${powerResult.records[0].date} to ${powerResult.records[powerResult.records.length - 1].date}`,
+          endpoint: 'https://power.larc.nasa.gov/api/temporal/daily/point'
         });
       } else {
         throw new Error(powerResult?.error || 'No records returned from NASA POWER API');
@@ -75,7 +78,7 @@ class DataRefreshPipeline {
 
     // 2. Refresh NASA Earthdata / AppEEARS NDVI
     try {
-      console.log(`[Step 2/3] Checking NASA Earthdata / AppEEARS NDVI status...`);
+      console.log(`[Step 2/5] Checking NASA Earthdata / AppEEARS NDVI status...`);
       if (appeearsService.hasCredentials()) {
         console.log(`[AppEEARS] Earthdata credentials detected. Initiating sampling task...`);
         const taskResult = await appeearsService.submitPointTask({
@@ -90,7 +93,8 @@ class DataRefreshPipeline {
           summary.successful.push({
             source: 'NASA AppEEARS MODIS NDVI',
             taskId: taskResult.taskId,
-            status: taskResult.status
+            status: taskResult.status,
+            endpoint: 'https://appeears.earthdatacloud.nasa.gov/api/'
           });
         } else {
           summary.failed.push({
@@ -102,7 +106,9 @@ class DataRefreshPipeline {
         console.log(`[AppEEARS] Skipped: EARTHDATA_TOKEN or credentials not configured in environment.`);
         summary.skipped.push({
           source: 'NASA AppEEARS MODIS NDVI',
-          reason: 'EARTHDATA_TOKEN or credentials not configured. Local archival NDVI preserved.'
+          status: 'AUTH_REQUIRED',
+          reason: 'EARTHDATA_TOKEN or credentials not configured. Local archival NDVI preserved.',
+          endpoint: 'https://appeears.earthdatacloud.nasa.gov/api/'
         });
       }
     } catch (err) {
@@ -115,9 +121,9 @@ class DataRefreshPipeline {
 
     // 3. Refresh NASA GIBS Satellite Imagery
     try {
-      console.log(`[Step 3/3] Refreshing NASA GIBS Satellite Imagery...`);
+      console.log(`[Step 3/5] Refreshing NASA GIBS Satellite Imagery...`);
       const timelapseDir = path.join(fieldDir, 'timelapse');
-      const targetDate = '2023-06-15'; // Peak vegetative greenness in Corn Belt
+      const targetDate = '2023-06-15';
       const gibsResult = await gibsService.fetchFieldSatelliteImage({
         lat,
         lng,
@@ -129,7 +135,8 @@ class DataRefreshPipeline {
         summary.successful.push({
           source: 'NASA GIBS WMS Satellite Tile',
           date: targetDate,
-          file: path.basename(gibsResult.filePath)
+          file: path.basename(gibsResult.filePath),
+          endpoint: 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi'
         });
       } else {
         summary.skipped.push({
@@ -144,10 +151,76 @@ class DataRefreshPipeline {
       });
     }
 
-    // 4. Update sources.json & SOURCES.md
+    // 4. Check & Refresh NASA SMAP Soil Moisture
+    try {
+      console.log(`[Step 4/5] Checking NASA SMAP Soil Moisture status...`);
+      const smapResult = await smapService.refreshSmap({
+        fieldId,
+        fieldDir,
+        lat,
+        lng
+      });
+
+      if (smapResult.status === 'FETCHED') {
+        summary.successful.push({
+          source: smapResult.source,
+          details: smapResult.coverage,
+          endpoint: 'https://nsidc.org/data/smap'
+        });
+      } else {
+        summary.skipped.push({
+          source: smapResult.source,
+          status: smapResult.status,
+          reason: smapResult.reason,
+          coverage: smapResult.coverage,
+          endpoint: smapResult.officialUrl
+        });
+      }
+    } catch (err) {
+      console.warn(`[DATA REFRESH] SMAP check encountered error: ${err.message}`);
+      summary.failed.push({
+        source: 'NASA SMAP L3 Soil Moisture',
+        error: err.message
+      });
+    }
+
+    // 5. Check & Refresh NASA GPM IMERG Precipitation
+    try {
+      console.log(`[Step 5/5] Checking NASA GPM IMERG Precipitation status...`);
+      const imergResult = await imergService.refreshImerg({
+        fieldId,
+        fieldDir,
+        lat,
+        lng
+      });
+
+      if (imergResult.status === 'FETCHED') {
+        summary.successful.push({
+          source: imergResult.source,
+          details: imergResult.coverage,
+          endpoint: 'https://gpm.nasa.gov/data'
+        });
+      } else {
+        summary.skipped.push({
+          source: imergResult.source,
+          status: imergResult.status,
+          reason: imergResult.reason,
+          coverage: imergResult.coverage,
+          endpoint: imergResult.officialUrl
+        });
+      }
+    } catch (err) {
+      console.warn(`[DATA REFRESH] IMERG check encountered error: ${err.message}`);
+      summary.failed.push({
+        source: 'NASA GPM IMERG Precipitation',
+        error: err.message
+      });
+    }
+
+    // 6. Update sources.json & SOURCES.md
     this.updateSourcesLedger(fieldId, summary);
 
-    // 5. Update field metadata lastRefreshed timestamp
+    // 7. Update field metadata lastRefreshed timestamp
     meta.lastRefreshed = new Date().toISOString();
     fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2), 'utf8');
 

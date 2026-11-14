@@ -1,34 +1,23 @@
 [
   {
-    "_id": "doc_1794651348737_lhnbnu",
-    "createdAt": "2026-11-14T10:15:48.737Z",
-    "updatedAt": "2026-11-14T10:15:48.738Z",
-    "phone": "9991112233",
-    "pinHash": "$2a$10$EzwMYKi3hP8gA3AOStYnE.ZHw.qGuEJblHBqQLaenjLfyPvjhdjKC",
-    "name": "Test Farmer"
+    "_id": "user_demo_01",
+    "phone": "9876543210",
+    "pinHash": "$2a$10$w8T0M42b8wDqGqg4w2d4pOFo5u4w8gT0M42b8wDqGqg4w2d4pO",
+    "name": "Judge Demo Farmer (முத்துவேல்)",
+    "createdAt": "2026-11-14T00:00:00.000Z"
   },
   {
-    "_id": "doc_1794652620248_lcogp6",
-    "createdAt": "2026-11-14T10:37:00.248Z",
-    "updatedAt": "2026-11-14T10:37:00.249Z",
-    "phone": "9991112233",
-    "pinHash": "$2a$10$O8NweeZCjRE/z63fqPI1YedfwkDW2aB6s2hoRdyA02BSBsNJ0oLZq",
-    "name": "Test Farmer"
+    "_id": "user_tn01",
+    "phone": "9443123456",
+    "pinHash": "$2a$10$rC8G8F.pD3b8gM8jK0L9E.Qo2pT0M42b8wDqGqg4w2d4pOFo5u4w8",
+    "name": "Muthuvel (முத்துவேல் - தஞ்சாவூர்)",
+    "createdAt": "2026-11-14T10:00:00.000Z"
   },
   {
-    "_id": "doc_1794660054308_zntd1w",
-    "createdAt": "2026-11-14T12:40:54.308Z",
-    "updatedAt": "2026-11-14T12:40:54.309Z",
-    "phone": "9991112233",
-    "pinHash": "$2a$10$Nr7tpXZQ7OHGwUdwlQmcFuGcupYaOJFGIsLQXi9HEZxMJONxmNNlu",
-    "name": "Test Farmer"
-  },
-  {
-    "_id": "doc_1794660109613_ybtk85",
-    "createdAt": "2026-11-14T12:41:49.613Z",
-    "updatedAt": "2026-11-14T12:41:49.615Z",
-    "phone": "9991112233",
-    "pinHash": "$2a$10$iO9Y6KfW6OB7uV3fi017AuPrwQ07sYoxKNGXQLQerkqQhxprz1o/e",
-    "name": "Test Farmer"
+    "_id": "user_iowa01",
+    "phone": "5155550199",
+    "pinHash": "$2a$10$rC8G8F.pD3b8gM8jK0L9E.Qo2pT0M42b8wDqGqg4w2d4pOFo5u4w8",
+    "name": "John Miller (Story County)",
+    "createdAt": "2026-11-14T10:00:00.000Z"
   }
 ]

@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useField } from '../context/FieldContext';
 import { rotationAPI, seasonAPI } from '../services/api';
-import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle } from 'lucide-react';
+import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle, Maximize2 } from 'lucide-react';
 
 export default function RotationPlan() {
+  const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isTamil = i18n.language === 'ta';
   const { currentFieldId, profile } = useField();
   const [rotations, setRotations] = useState([]);
   const [selectedRotation, setSelectedRotation] = useState(null);
@@ -205,14 +210,23 @@ export default function RotationPlan() {
       {/* Selected Rotation Deep-Dive Section */}
       {selectedRotation && (
         <div className="space-y-6 pt-2">
-          {/* Action: Commit Rotation */}
-          <button
-            onClick={handleCommitSeason}
-            className="btn-primary w-full text-base font-bold shadow-tactile flex items-center justify-center gap-2"
-          >
-            <CheckCircle2 className="w-5 h-5 text-wheat-400" />
-            Commit This Rotation as My Season Plan
-          </button>
+          {/* Action Buttons: Full-Screen Simulation & Commit */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              onClick={() => navigate('/timemachine?fullscreen=true')}
+              className="py-3 px-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-cream-50 font-display font-extrabold text-sm shadow-tactile flex items-center justify-center gap-2 active:scale-95 transition"
+            >
+              <Maximize2 className="w-5 h-5 text-emerald-300" />
+              <span>{isTamil ? '🌾 நிலத்தில் முழுத்திரையில் பார்' : '🌾 Simulate Land in Full Screen'}</span>
+            </button>
+            <button
+              onClick={handleCommitSeason}
+              className="btn-primary w-full text-sm font-bold shadow-tactile flex items-center justify-center gap-2"
+            >
+              <CheckCircle2 className="w-5 h-5 text-wheat-400" />
+              <span>{isTamil ? 'இச்சுழற்சியை உறுதி செய்' : 'Commit Rotation Plan'}</span>
+            </button>
+          </div>
 
           {/* Priority Weighting Transparency Box */}
           {selectedRotation.explanations && selectedRotation.explanations.length > 0 && (
