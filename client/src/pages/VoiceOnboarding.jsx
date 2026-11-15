@@ -11,7 +11,7 @@ import {
   Mic, MicOff, Check, Edit2, Volume2, Shield, DollarSign, 
   Droplets, AlertTriangle, ArrowRight, ArrowLeft, MapPin, 
   Sparkles, Trophy, CheckCircle2, RefreshCw, Satellite, Calendar,
-  Sliders, Award, Maximize2
+  Sliders, Award, Maximize2, ChevronUp, ChevronDown
 } from 'lucide-react';
 
 export default function VoiceOnboarding() {
@@ -25,8 +25,8 @@ export default function VoiceOnboarding() {
 
   // Multi-step Onboarding Workflow:
   // Step 1: 'details' -> Farmer & Land Details
-  // Step 2: 'location' -> Point the Location on Map
-  // Step 3: 'previous_crop' -> Previous Crop & Strategic Goals
+  // Step 2: 'location' -> Point Any Location on Map (Movable Pin anywhere in TN / Earth)
+  // Step 3: 'previous_crop' -> Multi-Select Previous Crops & Priority-wise Ranking
   // Step 4: 'fetching_nasa' -> Ingest NASA Datasets & Build Profile
   // Step 5: 'select_duration' -> Select Crop Rotation Duration (1, 2, 3 Years)
   // Step 6: 'strategies_list' -> View Evaluated Strategies & Play Game Mode
@@ -37,9 +37,55 @@ export default function VoiceOnboarding() {
   const [acres, setAcres] = useState(5);
   const [soilTexture, setSoilTexture] = useState('Alluvial Clay Loam (வண்டல் மண்)');
   const [waterSource, setWaterSource] = useState('irrigated');
-  const [selectedLocation, setSelectedLocation] = useState({ lat: 10.7870, lng: 79.1378, name: 'தஞ்சாவூர் (Thanjavur, TN)' });
-  const [currentCrop, setCurrentCrop] = useState('paddy'); // Previously grown crop
-  const [selectedPriorities, setSelectedPriorities] = useState(['Protect my soil', 'Earn more']);
+  
+  // Location State (Pin can be placed anywhere in Tamil Nadu or Earth)
+  const [selectedLocation, setSelectedLocation] = useState({ 
+    lat: 10.7870, 
+    lng: 79.1378, 
+    name: 'தஞ்சாவூர் (Thanjavur)', 
+    district: 'Thanjavur', 
+    zone: 'காவிரி டெல்டா (Cauvery Delta)' 
+  });
+
+  // Multi-select for previously grown crops before rotation
+  const [selectedPreviousCrops, setSelectedPreviousCrops] = useState(['paddy']);
+
+  // Priority-wise ordering & ranking (importance selection)
+  const [rankedPriorities, setRankedPriorities] = useState([
+    { 
+      id: 'Save water', 
+      label: isTamil ? 'நீர் சேமிப்பு' : 'Save water', 
+      icon: Droplets, 
+      color: 'text-cyan-600', 
+      badgeColor: 'bg-cyan-500/20 text-cyan-800 border-cyan-400',
+      desc: isTamil ? '40% வரை பாசன நீர் சேமிப்பு மற்றும் வறட்சி பாதுகாப்பு' : 'Up to 40% irrigation savings & drought resilience' 
+    },
+    { 
+      id: 'Protect my soil', 
+      label: isTamil ? 'மண் வளம் காத்தல்' : 'Protect my soil', 
+      icon: Shield, 
+      color: 'text-amber-800', 
+      badgeColor: 'bg-amber-500/20 text-amber-900 border-amber-400',
+      desc: isTamil ? '+80 lbs இயற்கை தழைச்சத்து வரவு & மண்புழு வளம்' : '+80 lbs biological nitrogen credits & soil health' 
+    },
+    { 
+      id: 'Earn more', 
+      label: isTamil ? 'அதிக லாபம்' : 'Earn more', 
+      icon: DollarSign, 
+      color: 'text-emerald-700', 
+      badgeColor: 'bg-emerald-500/20 text-emerald-900 border-emerald-400',
+      desc: isTamil ? 'அதிக சந்தை மதிப்புள்ள பணப்பயிர் மற்றும் எண்ணெய்வித்து வருமானம்' : 'Higher commodity cash profits & market returns' 
+    },
+    { 
+      id: 'Lower my risk', 
+      label: isTamil ? 'இடர் குறைப்பு' : 'Lower my risk', 
+      icon: AlertTriangle, 
+      color: 'text-amber-600', 
+      badgeColor: 'bg-rose-500/20 text-rose-900 border-rose-400',
+      desc: isTamil ? 'பூச்சி சுழற்சி உடைப்பு & பருவநிலை ஆபத்து குறைப்பு' : 'Pest cycle breakage & climate risk safety' 
+    }
+  ]);
+
   const [selectedDuration, setSelectedDuration] = useState('3_year'); // '1_year', '2_year', '3_year'
 
   // Voice & Extraction State
@@ -57,15 +103,7 @@ export default function VoiceOnboarding() {
   const [activeGameStrategyId, setActiveGameStrategyId] = useState(null);
   const [committedMsg, setCommittedMsg] = useState(null);
 
-  // Strategic priorities options
-  const prioritiesList = [
-    { id: 'Save water', label: isTamil ? 'நீர் சேமிப்பு' : 'Save water', icon: Droplets, color: 'text-cyan-600' },
-    { id: 'Earn more', label: isTamil ? 'அதிக லாபம்' : 'Earn more', icon: DollarSign, color: 'text-emerald-700' },
-    { id: 'Protect my soil', label: isTamil ? 'மண் வளம் காத்தல்' : 'Protect my soil', icon: Shield, color: 'text-amber-800' },
-    { id: 'Lower my risk', label: isTamil ? 'இடர் குறைப்பு' : 'Lower my risk', icon: AlertTriangle, color: 'text-amber-600' }
-  ];
-
-  // Proactive Voice Prompt on each step change
+  // Proactive Voice Prompt on step change
   useEffect(() => {
     let prompt = '';
     if (currentStep === 1) {
@@ -74,12 +112,12 @@ export default function VoiceOnboarding() {
         : "Welcome! Let's register your farm and land details. Please specify your land area, soil type, and irrigation system.";
     } else if (currentStep === 2) {
       prompt = isTamil
-        ? "உங்கள் நிலம் அமைந்துள்ள இடத்தை வரைபடத்தில் சுட்டிக்காட்டவும். நாசா செயற்கைக்கோள் ஆய்வு மையத்துடன் இணைக்கப்படும்."
-        : "Please point your farm location on the map to link with official NASA observation grids.";
+        ? "உங்கள் நிலம் அமைந்துள்ள இடத்தை வரைபடத்தில் எங்கு வேண்டுமானாலும் தொட்டு குறியிடலாம். அந்த இடத்திற்கு குறியீட்டு முள் நகரும்."
+        : "Please point your farm anywhere on the map. The pin can be placed or dragged to any location.";
     } else if (currentStep === 3) {
       prompt = isTamil
-        ? "பயிர் சுழற்சிக்கு முன்னர் இந்த நிலத்தில் என்ன பயிர் செய்தீர்கள்? மற்றும் உங்கள் முக்கிய விவசாய முன்னுரிமைகளைத் தேர்ந்தெடுக்கவும்."
-        : "What crop was grown on this land previously? And select your key farming priorities.";
+        ? "முன்னர் பயிரிட்ட பயிர்களை பலவாக தேர்வு செய்யலாம். உங்கள் விவசாய முன்னுரிமைகளை முக்கியத்துவத்திற்கு ஏற்ப மேலே கீழே நகர்த்தி வரிசைப்படுத்தவும்."
+        : "You can multi-select previously grown crops. Rank your farming priorities in order of importance.";
     } else if (currentStep === 5) {
       prompt = isTamil
         ? "பயிர் சுழற்சி காலத்தைத் தேர்வு செய்யுங்கள்: 1 பருவம், 2 ஆண்டுகள், அல்லது 3 ஆண்டுகள் சுழற்சி திட்டத்தை உருவாக்கலாம்."
@@ -109,9 +147,8 @@ export default function VoiceOnboarding() {
       if (extracted.areaAcres) setAcres(extracted.areaAcres);
       if (extracted.soilTexture) setSoilTexture(extracted.soilTexture);
       if (extracted.waterSource) setWaterSource(extracted.waterSource);
-      if (extracted.currentCrop) setCurrentCrop(extracted.currentCrop);
-      if (extracted.priorities && extracted.priorities.length > 0) {
-        setSelectedPriorities(extracted.priorities);
+      if (extracted.currentCrop) {
+        setSelectedPreviousCrops(prev => prev.includes(extracted.currentCrop) ? prev : [...prev, extracted.currentCrop]);
       }
 
       speak(confirmationText);
@@ -122,12 +159,38 @@ export default function VoiceOnboarding() {
     }
   };
 
-  const togglePriority = (p) => {
-    if (selectedPriorities.includes(p)) {
-      setSelectedPriorities(selectedPriorities.filter(x => x !== p));
+  // Toggle multi-select previous crop
+  const togglePreviousCrop = (cropId) => {
+    playSound('chime');
+    if (selectedPreviousCrops.includes(cropId)) {
+      if (selectedPreviousCrops.length > 1) {
+        setSelectedPreviousCrops(selectedPreviousCrops.filter(c => c !== cropId));
+      }
     } else {
-      setSelectedPriorities([...selectedPriorities, p]);
+      setSelectedPreviousCrops([...selectedPreviousCrops, cropId]);
     }
+  };
+
+  // Reorder priorities up or down
+  const movePriority = (index, direction) => {
+    playSound('chime');
+    const newIdx = index + direction;
+    if (newIdx < 0 || newIdx >= rankedPriorities.length) return;
+    const updated = [...rankedPriorities];
+    const temp = updated[index];
+    updated[index] = updated[newIdx];
+    updated[newIdx] = temp;
+    setRankedPriorities(updated);
+  };
+
+  // Make top priority shortcut
+  const makeTopPriority = (index) => {
+    playSound('chime');
+    if (index === 0) return;
+    const updated = [...rankedPriorities];
+    const [item] = updated.splice(index, 1);
+    updated.unshift(item);
+    setRankedPriorities(updated);
   };
 
   // Step 4: Simulate authentic NASA telemetry ingestion & save profile
@@ -136,7 +199,7 @@ export default function VoiceOnboarding() {
     playSound('chime');
 
     const steps = [
-      { pct: 20, text: isTamil ? '🛰️ நாசா POWER ஏபிஐ உடன் இணைகிறது (அட்சரேகை: 10.787° N, தீர்க்கரேகை: 79.138° E)...' : '🛰️ Connecting to NASA POWER Daily API (10.787° N, 79.138° E)...' },
+      { pct: 20, text: isTamil ? `🛰️ நாசா POWER ஏபிஐ உடன் இணைகிறது (${selectedLocation.name} - ${selectedLocation.lat}° N, ${selectedLocation.lng}° E)...` : `🛰️ Connecting to NASA POWER Daily API (${selectedLocation.lat}° N, ${selectedLocation.lng}° E)...` },
       { pct: 45, text: isTamil ? '🌦️ 40 ஆண்டுகால மழைப்பொழிவு மற்றும் MERRA-2 வெப்பநிலைத் தரவுகள் பெறப்படுகின்றன...' : '🌦️ Retrieving 40-year precipitation normals & MERRA-2 thermal records...' },
       { pct: 70, text: isTamil ? '🌱 நாசா MODIS 250m NDVI செயற்கைக்கோள் பசுமைக் குறியீடு தரவிறக்கப்படுகிறது...' : '🌱 Fetching NASA AppEEARS MODIS Terra 250m NDVI vegetation index...' },
       { pct: 90, text: isTamil ? '🌾 மண்வளக் களஞ்சியம் மற்றும் இயற்கை தழைச்சத்து வரவு கணக்கிடப்படுகிறது...' : '🌾 Calculating biological nitrogen ledger & Available Water Capacity...' },
@@ -152,7 +215,7 @@ export default function VoiceOnboarding() {
     try {
       await profileAPI.updateProfile({
         fieldId: currentFieldId || 'field_tn01',
-        name: farmerName ? `${farmerName} பண்ணை` : 'காவிரி டெல்டா வயல்',
+        name: farmerName ? `${farmerName} பண்ணை` : `${selectedLocation.name} வயல்`,
         areaAcres: parseFloat(acres),
         location: { lat: selectedLocation.lat, lng: selectedLocation.lng },
         soil: {
@@ -164,16 +227,15 @@ export default function VoiceOnboarding() {
           source: 'TNAU Soil Survey / NASA MERRA-2'
         },
         waterSource,
-        currentCrop,
-        previousCrops: [currentCrop],
-        priorities: selectedPriorities
+        currentCrop: selectedPreviousCrops[0] || 'paddy',
+        previousCrops: selectedPreviousCrops,
+        priorities: rankedPriorities.map(p => p.id)
       });
 
       speak(isTamil
         ? "உங்கள் நிலத்திற்கான நாசா செயற்கைக்கோள் தரவுகள் மற்றும் மண் தகவல்கள் வெற்றிகரமாக பெறப்பட்டு பண்ணை சுயவிவரம் தயாராக உள்ளது!"
         : "NASA satellite data and soil profiles have been successfully retrieved for your field!");
 
-      // Advance to Duration Selection Step
       setTimeout(() => {
         setCurrentStep(5);
       }, 900);
@@ -192,8 +254,8 @@ export default function VoiceOnboarding() {
     try {
       const res = await rotationAPI.getRotations({
         fieldId: currentFieldId || 'field_tn01',
-        priorities: selectedPriorities.join(','),
-        currentCrop
+        priorities: rankedPriorities.map(p => p.id).join(','),
+        currentCrop: selectedPreviousCrops[0] || 'paddy'
       });
       const list = res.data?.rotations || [];
       setStrategies(list);
@@ -242,8 +304,8 @@ export default function VoiceOnboarding() {
           </span>
           <span className="font-mono text-soil-600">
             {currentStep === 1 && (isTamil ? 'பண்ணை & நில விவரங்கள்' : 'Farm & Land Details')}
-            {currentStep === 2 && (isTamil ? 'நிலத்தின் இருப்பிடம்' : 'Location Pinning')}
-            {currentStep === 3 && (isTamil ? 'முந்தைய பயிர் & இலக்குகள்' : 'Previous Crop & Goals')}
+            {currentStep === 2 && (isTamil ? 'நிலத்தின் இருப்பிடம் (குறியிடு)' : 'Point Location on Map')}
+            {currentStep === 3 && (isTamil ? 'முந்தைய பயிர்கள் & வரிசைப்படுத்தப்பட்ட இலக்குகள்' : 'Previous Crops & Ranked Priorities')}
             {currentStep === 4 && (isTamil ? 'நாசா தரவுகள் பெறுதல்' : 'NASA Data Ingestion')}
             {currentStep === 5 && (isTamil ? 'சுழற்சி காலம் தேர்வு' : 'Rotation Duration')}
             {currentStep === 6 && (isTamil ? 'பயிர் சுழற்சி உத்திகள்' : 'Rotation Strategies')}
@@ -258,7 +320,7 @@ export default function VoiceOnboarding() {
         </div>
       </div>
 
-      {/* Voice Mic Trigger Bar (Available anytime) */}
+      {/* Voice Mic Trigger Bar (Always available) */}
       <div className="bg-cream-50 border-2 border-field-600/30 rounded-3xl p-3.5 shadow-tactile flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <button
@@ -277,7 +339,7 @@ export default function VoiceOnboarding() {
               <span>{isListening ? (isTamil ? 'கேட்கிறது... பேசுங்கள்' : 'Listening... speak now') : (isTamil ? '🗣️ தமிழில் பேசலாம்' : 'Tap mic to speak')}</span>
             </div>
             <p className="text-[11px] text-soil-600 truncate max-w-[240px] sm:max-w-md">
-              {transcript || spokenText || (isTamil ? 'எ.கா: "5 ஏக்கர் வண்டல் மண் நிலம், வாய்க்கால் பாசனம், போன பருவம் நெல் போட்டேன்"' : 'e.g. "5 acres alluvial soil, canal irrigated, grew paddy"')}
+              {transcript || spokenText || (isTamil ? 'எ.கா: "5 ஏக்கர் வண்டல் மண் நிலம், வாய்க்கால் பாசனம், போன பருவம் நெல் மற்றும் உளுந்து போட்டேன்"' : 'e.g. "5 acres alluvial soil, grew paddy and black gram"')}
             </p>
           </div>
         </div>
@@ -419,62 +481,88 @@ export default function VoiceOnboarding() {
         </div>
       )}
 
-      {/* STEP 2: POINT LOCATION ON MAP */}
+      {/* STEP 2: POINT ANY LOCATION ON MAP (Movable Pin anywhere in TN / World) */}
       {currentStep === 2 && (
         <div className="card-heartland space-y-4 animate-in slide-in-from-right-4">
           <div>
             <h2 className="font-display font-extrabold text-lg text-soil-900">
-              {isTamil ? '2. நிலத்தின் இருப்பிடத்தைக் குறிக்கவும்' : '2. Point Your Farm Location'}
+              {isTamil ? '2. நிலத்தின் இருப்பிடத்தைக் குறியிடவும்' : '2. Point Any Farm Location on Map'}
             </h2>
             <p className="text-xs text-soil-600 mt-0.5">
-              {isTamil ? 'வரைபடத்தில் உங்கள் வயலைத் தட்டவும் அல்லது விரைவு இருப்பிடங்களைத் தேர்ந்தெடுக்கவும்:' : 'Tap the map to set your parcel or select a regional preset:'}
+              {isTamil ? 'தமிழ்நாட்டின் எந்தப் பகுதியிலும் வரைபடத்தில் தொட்டு உங்கள் நிலத்தைக் குறிக்கலாம். அந்த இடத்திற்கு குறியீட்டு முள் உடனடியாக நகரும்:' : 'Tap or drag anywhere in Tamil Nadu to pin your exact farm. The pin dynamically moves to your selected coordinates:'}
             </p>
           </div>
 
-          {/* Quick Regional Presets */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              { name: isTamil ? '🌾 தஞ்சாவூர் டெல்டா' : '🌾 Thanjavur Delta', lat: 10.7870, lng: 79.1378, id: 'field_tn01' },
-              { name: isTamil ? '🌾 திருவாரூர்' : '🌾 Tiruvarur', lat: 10.7725, lng: 79.6365, id: 'field_tn01' },
-              { name: isTamil ? '🌾 மதுரை' : '🌾 Madurai', lat: 9.9252, lng: 78.1198, id: 'field_tn01' },
-              { name: '🌽 Story County, Iowa', lat: 42.0308, lng: -93.6319, id: 'field01' }
-            ].map((p, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => {
-                  setSelectedLocation({ lat: p.lat, lng: p.lng, name: p.name });
-                  if (switchField) switchField(p.id);
-                  playSound('chime');
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
-                  selectedLocation.lat === p.lat
-                    ? 'bg-field-600 text-cream-50 border-field-600 shadow-sm'
-                    : 'bg-cream-100 text-soil-800 border-soil-300 hover:bg-cream-200'
-                }`}
-              >
-                {p.name}
-              </button>
-            ))}
+          {/* Quick Regional District Presets for Tamil Nadu */}
+          <div className="space-y-1">
+            <span className="text-[11px] font-bold text-soil-700">
+              {isTamil ? 'முக்கிய விவசாய மாவட்டங்கள் (விரைவுத் தேர்வு):' : 'Major Agricultural Districts (Quick Preset):'}
+            </span>
+            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1.5 bg-cream-100 rounded-2xl border border-soil-300">
+              {[
+                { name: isTamil ? '🌾 தஞ்சாவூர்' : '🌾 Thanjavur', lat: 10.7870, lng: 79.1378, district: 'Thanjavur', zone: 'காவிரி டெல்டா' },
+                { name: isTamil ? '🌾 திருவாரூர்' : '🌾 Tiruvarur', lat: 10.7725, lng: 79.6365, district: 'Tiruvarur', zone: 'காவிரி டெல்டா' },
+                { name: isTamil ? '🌾 திருச்சி' : '🌾 Trichy', lat: 10.7905, lng: 78.7047, district: 'Tiruchirappalli', zone: 'மத்திய வடிநிலம்' },
+                { name: isTamil ? '🌾 மதுரை' : '🌾 Madurai', lat: 9.9252, lng: 78.1198, district: 'Madurai', zone: 'தென் மண்டலம்' },
+                { name: isTamil ? '🌾 கோயம்புத்தூர்' : '🌾 Coimbatore', lat: 11.0168, lng: 76.9558, district: 'Coimbatore', zone: 'மேற்கு மண்டலம்' },
+                { name: isTamil ? '🌾 ஈரோடு' : '🌾 Erode', lat: 11.3410, lng: 77.7172, district: 'Erode', zone: 'மேற்கு மண்டலம்' },
+                { name: isTamil ? '🌾 சேலம்' : '🌾 Salem', lat: 11.6643, lng: 78.1460, district: 'Salem', zone: 'வடமேற்கு' },
+                { name: isTamil ? '🌾 திருநெல்வேலி' : '🌾 Tirunelveli', lat: 8.7139, lng: 77.7567, district: 'Tirunelveli', zone: 'தென் மண்டலம்' },
+                { name: isTamil ? '🌾 கடலூர்' : '🌾 Cuddalore', lat: 11.7480, lng: 79.7714, district: 'Cuddalore', zone: 'வடகிழக்கு' },
+                { name: isTamil ? '🌾 வேலூர்' : '🌾 Vellore', lat: 12.9165, lng: 79.1325, district: 'Vellore', zone: 'வடக்கு மண்டலம்' },
+                { name: isTamil ? '🌾 மயிலாடுதுறை' : '🌾 Mayiladuthurai', lat: 11.1075, lng: 79.6524, district: 'Mayiladuthurai', zone: 'காவிரி டெல்டா' },
+                { name: '🌽 Story County (Iowa)', lat: 42.0308, lng: -93.6319, district: 'Story', zone: 'Corn Belt' }
+              ].map((p, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setSelectedLocation({ 
+                      lat: p.lat, 
+                      lng: p.lng, 
+                      name: p.name, 
+                      district: p.district, 
+                      zone: p.zone 
+                    });
+                    playSound('chime');
+                  }}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-bold border transition ${
+                    selectedLocation.lat === p.lat && selectedLocation.lng === p.lng
+                      ? 'bg-field-600 text-cream-50 border-field-600 shadow-sm ring-2 ring-field-600/30'
+                      : 'bg-cream-50 text-soil-800 border-soil-300 hover:bg-cream-200'
+                  }`}
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Interactive Leaflet Map */}
+          {/* Interactive Leaflet Map with Movable / Draggable Pin */}
           <FieldMap
             center={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
             fields={fieldList}
             selectedFieldId={currentFieldId}
-            onFieldSelect={(id) => {
-              if (switchField) switchField(id);
+            onLocationSelect={(loc) => {
+              setSelectedLocation(loc);
+              playSound('chime');
             }}
           />
 
-          <div className="bg-wheat-100 border border-wheat-400 rounded-2xl p-3 flex items-center justify-between text-xs text-soil-900 font-bold">
+          <div className="bg-wheat-100 border border-wheat-400 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-soil-900 font-bold gap-2">
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-field-700" />
-              <span>{isTamil ? 'தேர்வு செய்யப்பட்ட இடம்:' : 'Selected Coordinates:'}</span>
-              <strong className="text-field-800 font-mono">{selectedLocation.lat}° N, {selectedLocation.lng}° E</strong>
+              <MapPin className="w-4 h-4 text-field-700 flex-shrink-0 animate-bounce" />
+              <div>
+                <span>{isTamil ? 'தேர்வு செய்யப்பட்ட இடம்:' : 'Selected Parcel:'}</span>{' '}
+                <strong className="text-field-800">{selectedLocation.name}</strong>
+                <div className="text-[11px] font-mono text-soil-700 mt-0.5">
+                  அட்சரேகை: <strong>{selectedLocation.lat}° N</strong>, தீர்க்கரேகை: <strong>{selectedLocation.lng}° E</strong>
+                </div>
+              </div>
             </div>
-            <span className="text-[11px] text-soil-600 font-normal">NASA 0.5° Grid linked</span>
+            <span className="text-[10px] text-soil-600 font-mono bg-cream-50 px-2 py-1 rounded-lg border border-soil-300 self-start sm:self-auto">
+              NASA POWER Grid Linked
+            </span>
           </div>
 
           <div className="flex gap-2.5 pt-2">
@@ -492,84 +580,165 @@ export default function VoiceOnboarding() {
               }}
               className="btn-primary flex-1 text-sm font-extrabold py-3 flex items-center justify-center gap-2 shadow-tactile"
             >
-              <span>{isTamil ? 'அடுத்தது: முந்தைய பயிர்' : 'Next: Previous Crop'}</span>
+              <span>{isTamil ? 'அடுத்தது: முந்தைய பயிர்கள்' : 'Next: Previous Crops'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      {/* STEP 3: PREVIOUSLY GROWN CROPS & STRATEGIC GOALS */}
+      {/* STEP 3: MULTI-SELECT PREVIOUS CROPS & PRIORITY-WISE ORDERING / RANKING */}
       {currentStep === 3 && (
-        <div className="card-heartland space-y-4 animate-in slide-in-from-right-4">
+        <div className="card-heartland space-y-5 animate-in slide-in-from-right-4">
           <div>
             <h2 className="font-display font-extrabold text-lg text-soil-900">
-              {isTamil ? '3. முன்னர் பயிரிட்ட பயிர் மற்றும் இலக்குகள்' : '3. Previous Crop & Strategic Goals'}
+              {isTamil ? '3. முன்னர் பயிரிட்ட பயிர்கள் & வரிசைப்படுத்தப்பட்ட இலக்குகள்' : '3. Previous Crops & Ranked Priorities'}
             </h2>
             <p className="text-xs text-soil-600 mt-0.5">
-              {isTamil ? 'சுழற்சி உத்திகளை உருவாக்க, இதற்கு முன் இந்த நிலத்தில் விளைந்த பயிரைக் குறிப்பிடவும்:' : 'Specify what crop was grown previously to break pest cycles and balance nitrogen:'}
+              {isTamil ? 'முன்னர் பயிரிட்ட பயிர்களை பலவாக தேர்வு செய்யலாம்; மேலும் உங்கள் விவசாய இலக்குகளை முக்கியத்துவத்திற்கு ஏற்ப வரிசைப்படுத்தவும்:' : 'Multi-select previously grown crops and rank your farming goals in order of importance:'}
             </p>
           </div>
 
-          <div className="space-y-3.5">
-            {/* Previously Grown Crop Selector */}
-            <div>
-              <label className="block text-xs font-bold text-soil-700 mb-1">
-                {isTamil ? 'முன்னர் பயிரிட்ட பயிர் (Crop Grown Before Rotation)' : 'Previously Grown Crop'}
+          {/* 1. Multi-Select for Previously Grown Crops */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold text-soil-700">
+                {isTamil ? 'முன்னர் பயிரிட்ட பயிர்கள் (பல பயிர்கள் தேர்ந்தெடுக்கலாம்):' : 'Previously Grown Crops (Multi-Select):'}
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {[
-                  { id: 'paddy', label: isTamil ? '🌾 சம்பா நெல்' : 'Paddy / Rice' },
-                  { id: 'kuruvai', label: isTamil ? '🌾 குறுவை நெல்' : 'Kuruvai Paddy' },
-                  { id: 'corn', label: isTamil ? '🌽 மக்காச்சோளம்' : 'Corn / Maize' },
-                  { id: 'black_gram', label: isTamil ? '🌱 உளுந்து / பயறு' : 'Black Gram' },
-                  { id: 'groundnut', label: isTamil ? '🥜 நிலக்கடலை' : 'Groundnut' },
-                  { id: 'cotton', label: isTamil ? '🌿 பருத்தி' : 'Cotton' }
-                ].map((c) => (
+              <span className="text-[10px] font-mono font-bold bg-field-100 text-field-900 px-2 py-0.5 rounded-full border border-field-300">
+                {selectedPreviousCrops.length} {isTamil ? 'பயிர்கள் தேர்வு' : 'selected'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {[
+                { id: 'paddy', label: isTamil ? '🌾 சம்பா நெல்' : 'Samba Paddy' },
+                { id: 'kuruvai', label: isTamil ? '🌾 குறுவை நெல்' : 'Kuruvai Paddy' },
+                { id: 'corn', label: isTamil ? '🌽 மக்காச்சோளம்' : 'Corn / Maize' },
+                { id: 'black_gram', label: isTamil ? '🌱 உளுந்து / பயறு' : 'Black Gram' },
+                { id: 'groundnut', label: isTamil ? '🥜 நிலக்கடலை' : 'Groundnut' },
+                { id: 'cotton', label: isTamil ? '🌿 பருத்தி' : 'Cotton' },
+                { id: 'sesame', label: isTamil ? '🌻 எள்' : 'Sesame' },
+                { id: 'millets', label: isTamil ? '🌾 கம்பு / தினை' : 'Millets' },
+                { id: 'sugarcane', label: isTamil ? '🎋 கரும்பு' : 'Sugarcane' },
+                { id: 'vegetables', label: isTamil ? '🥬 காய்கறிகள்' : 'Vegetables' }
+              ].map((c) => {
+                const isSelected = selectedPreviousCrops.includes(c.id);
+                return (
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => setCurrentCrop(c.id)}
-                    className={`p-2.5 rounded-xl border text-xs font-bold transition text-left ${
-                      currentCrop === c.id
-                        ? 'bg-field-600 text-cream-50 border-field-600 shadow-sm'
+                    onClick={() => togglePreviousCrop(c.id)}
+                    className={`p-2.5 rounded-xl border text-xs font-bold transition text-left flex items-center justify-between active:scale-95 ${
+                      isSelected
+                        ? 'bg-field-600 text-cream-50 border-field-600 shadow-sm ring-2 ring-field-600/30'
                         : 'bg-cream-100 text-soil-800 border-soil-300 hover:bg-cream-200'
                     }`}
                   >
-                    {c.label}
+                    <span>{c.label}</span>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-wheat-300 flex-shrink-0" />}
                   </button>
-                ))}
-              </div>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-soil-500 italic">
+              {isTamil ? '💡 முந்தைய பயிர்களைத் தெரிந்து கொள்வது பூச்சி சுழற்சியை உடைக்கவும், தழைச்சத்தை சமன் செய்யவும் உதவுகிறது.' : '💡 Knowing previous crops helps break pest cycles and replenish nitrogen.'}
+            </p>
+          </div>
+
+          {/* 2. Priority-Wise Ordering & Ranking (Importance Selection) */}
+          <div className="space-y-2.5 pt-2 border-t border-soil-200">
+            <div>
+              <label className="block text-xs font-bold text-soil-800">
+                {isTamil ? 'உங்கள் விவசாய முன்னுரிமை இலக்குகளை வரிசைப்படுத்தவும் (முக்கியத்துவத் தரவரிசை):' : 'Rank Your Farming Priorities in Order of Importance:'}
+              </label>
+              <p className="text-[11px] text-soil-600">
+                {isTamil ? '▲ மற்றும் ▼ பொத்தான்களைப் பயன்படுத்தி பெட்டிகளை நகர்த்தவும். முதலிடத்தில் உள்ள இலக்கிற்கு பயிர் சுழற்சியில் அதிக முக்கியத்துவம் வழங்கப்படும்.' : 'Use ▲ and ▼ buttons to move items up or down. The top-ranked goal receives highest weight in crop rotation scoring.'}
+              </p>
             </div>
 
-            {/* Strategic Priorities Selection (Double Weighted) */}
-            <div>
-              <label className="block text-xs font-bold text-soil-700 mb-1">
-                {isTamil ? 'உங்கள் விவசாய முன்னுரிமை இலக்குகள் (இரு மடங்கு முக்கியத்துவம்)' : 'Strategic Priorities (Double-Weighted in Scoring)'}
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {prioritiesList.map((item) => {
-                  const active = selectedPriorities.includes(item.id);
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => togglePriority(item.id)}
-                      className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-2 ${
-                        active
-                          ? 'bg-wheat-100 border-wheat-500 shadow-sm text-soil-900 font-extrabold'
-                          : 'bg-cream-50 border-soil-300 text-soil-700 hover:bg-cream-200'
-                      }`}
-                    >
-                      <div className={`p-2 rounded-xl ${active ? 'bg-wheat-200' : 'bg-cream-200'}`}>
-                        <Icon className={`w-4 h-4 ${item.color}`} />
+            {/* Draggable / Movable Priority Ranking Cards */}
+            <div className="space-y-2">
+              {rankedPriorities.map((item, index) => {
+                const Icon = item.icon;
+                const isFirst = index === 0;
+                const isLast = index === rankedPriorities.length - 1;
+
+                const rankLabels = [
+                  { title: isTamil ? '🥇 #1 முதன்மை இலக்கு (Top Priority - 2.5× முக்கியத்துவம்)' : '🥇 #1 Top Priority (2.5× Weight)', border: 'border-amber-400 bg-amber-50/60' },
+                  { title: isTamil ? '🥈 #2 இரண்டாம் இலக்கு (2.0× முக்கியத்துவம்)' : '🥈 #2 Second Priority (2.0× Weight)', border: 'border-teal-400 bg-teal-50/50' },
+                  { title: isTamil ? '🥉 #3 மூன்றாம் இலக்கு (1.5× முக்கியத்துவம்)' : '🥉 #3 Third Priority (1.5× Weight)', border: 'border-soil-300 bg-cream-50' },
+                  { title: isTamil ? '🎖️ #4 நான்காம் இலக்கு (1.0× முக்கியத்துவம்)' : '🎖️ #4 Fourth Priority (1.0× Weight)', border: 'border-soil-200 bg-cream-50' }
+                ];
+
+                const currentRank = rankLabels[index] || rankLabels[3];
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`p-3 rounded-2xl border-2 transition-all flex items-center justify-between gap-3 shadow-sm ${currentRank.border}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-xl bg-white shadow-sm border border-soil-200`}>
+                        <Icon className={`w-5 h-5 ${item.color}`} />
                       </div>
-                      <span className="text-xs">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                      <div>
+                        <div className="text-[10px] font-mono font-extrabold uppercase text-field-800">
+                          {currentRank.title}
+                        </div>
+                        <h4 className="font-display font-extrabold text-sm text-soil-900">
+                          {item.label}
+                        </h4>
+                        <p className="text-[10px] text-soil-600">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Move Up / Move Down Controls */}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {!isFirst && (
+                        <button
+                          type="button"
+                          onClick={() => makeTopPriority(index)}
+                          className="px-2 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-extrabold border border-amber-300 active:scale-95 transition hidden sm:inline"
+                          title="முதன்மை ஆக்கு (#1)"
+                        >
+                          #1 ஆக்கு
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        disabled={isFirst}
+                        onClick={() => movePriority(index, -1)}
+                        className={`p-1.5 rounded-xl border transition ${
+                          isFirst 
+                            ? 'opacity-30 cursor-not-allowed bg-stone-100 border-stone-200 text-stone-400' 
+                            : 'bg-white hover:bg-cream-100 text-soil-800 border-soil-300 active:scale-95 shadow-sm'
+                        }`}
+                        title="மேலே நகர்த்து (Move Up)"
+                      >
+                        <ChevronUp className="w-4 h-4 font-extrabold" />
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={isLast}
+                        onClick={() => movePriority(index, 1)}
+                        className={`p-1.5 rounded-xl border transition ${
+                          isLast 
+                            ? 'opacity-30 cursor-not-allowed bg-stone-100 border-stone-200 text-stone-400' 
+                            : 'bg-white hover:bg-cream-100 text-soil-800 border-soil-300 active:scale-95 shadow-sm'
+                        }`}
+                        title="கீழே நகர்த்து (Move Down)"
+                      >
+                        <ChevronDown className="w-4 h-4 font-extrabold" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -635,7 +804,7 @@ export default function VoiceOnboarding() {
               {isTamil ? 'பயிர் சுழற்சி காலத்தைத் தேர்வு செய்யுங்கள்' : 'Select Crop Rotation Duration'}
             </h2>
             <p className="text-xs text-soil-600 mt-0.5">
-              {isTamil ? 'உங்கள் நிலத்தின் முந்தைய பயிர், மண் வளம் மற்றும் நாசா காலநிலை அடிப்படையில் உத்திகளை உருவாக்க கால அளவைத் தேர்ந்தெடுக்கவும்:' : 'Choose your rotation planning horizon based on soil health and climate normals:'}
+              {isTamil ? 'உங்கள் நிலத்தின் முந்தைய பயிர்கள், மண் வளம் மற்றும் நாசா காலநிலை அடிப்படையில் உத்திகளை உருவாக்க கால அளவைத் தேர்ந்தெடுக்கவும்:' : 'Choose your rotation planning horizon based on soil health and climate normals:'}
             </p>
           </div>
 
@@ -740,7 +909,7 @@ export default function VoiceOnboarding() {
         </div>
       )}
 
-      {/* STEP 6: DISPLAY LIST OF STRATEGIES WITH GAME MODE FOR EACH */}
+      {/* STEP 6: DISPLAY LIST OF STRATEGIES WITH EXACT 3-BUTTON ACTION GRID FOR EACH */}
       {currentStep === 6 && (
         <div className="space-y-4 animate-in slide-in-from-right-4">
           <div className="flex items-center justify-between">
@@ -752,7 +921,7 @@ export default function VoiceOnboarding() {
                 {isTamil ? 'பரிந்துரைக்கப்பட்ட பயிர் சுழற்சி உத்திகள்' : 'Recommended Crop Rotation Strategies'}
               </h2>
               <p className="text-xs text-soil-600">
-                {isTamil ? 'ஒவ்வொரு உத்தியையும் விளையாட்டாக விளையாடி அல்லது நேரடியாக உறுதி செய்யலாம்:' : 'Test each strategy in the full-screen game simulation or commit directly:'}
+                {isTamil ? 'ஒவ்வொரு உத்தியையும் விளையாட்டாக சோதிக்கலாம், நிலத்தில் உருவகப்படுத்தலாம் அல்லது நேரடியாக உறுதி செய்யலாம்:' : 'Test each strategy in the full-screen game, simulate on land, or commit directly:'}
               </p>
             </div>
             <button
@@ -837,7 +1006,7 @@ export default function VoiceOnboarding() {
                     </div>
                   </div>
 
-                  {/* 3 Action Buttons on EACH strategy card (Matching requested design) */}
+                  {/* 3 Action Buttons on EACH strategy card (Matching user's exact screenshot) */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2.5 border-t border-soil-200">
                     {/* Button 1: Game Mode */}
                     <button
