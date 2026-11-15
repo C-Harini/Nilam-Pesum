@@ -295,6 +295,7 @@ export default function AllStrategiesGameAnalysis({
     setCommittedId(strat.id);
     try {
       if (onCommitStrategy) {
+        if (onClose) onClose();
         await onCommitStrategy(strat);
       } else {
         await seasonAPI.commitPlan({

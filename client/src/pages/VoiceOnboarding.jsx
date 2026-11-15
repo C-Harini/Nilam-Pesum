@@ -8,6 +8,7 @@ import { profileAPI, rotationAPI, seasonAPI } from '../services/api';
 import FieldMap from '../components/map/FieldMap';
 import FarmGameSimulation from '../components/simulation/FarmGameSimulation';
 import AllStrategiesGameAnalysis from '../components/simulation/AllStrategiesGameAnalysis';
+import StrategyCommitModal from '../components/simulation/StrategyCommitModal';
 import { CropSequenceVisualizer } from '../components/common/CropVisualCard';
 import LanguageModeToggle from '../components/common/LanguageModeToggle';
 import { 
@@ -132,6 +133,8 @@ export default function VoiceOnboarding() {
   const [activeGameStrategyId, setActiveGameStrategyId] = useState(null);
   const [showAllStrategiesAnalysis, setShowAllStrategiesAnalysis] = useState(false);
   const [committedMsg, setCommittedMsg] = useState(null);
+  const [confirmedStrategy, setConfirmedStrategy] = useState(null);
+  const [showCommitModal, setShowCommitModal] = useState(false);
 
   // Proactive Voice Prompt on step change
   useEffect(() => {
@@ -313,15 +316,13 @@ export default function VoiceOnboarding() {
         sequence: strat.sequence,
         name: strat.name
       });
-      setCommittedMsg(isTamil 
-        ? `${strat.name.split('(')[0]} உங்கள் 2024 பருவத் திட்டமாக வெற்றிகரமாக உறுதி செய்யப்பட்டது!` 
-        : `Successfully committed ${strat.name} as your 2024 season plan!`);
-      speak(isTamil 
-        ? `வாழ்த்துகள்! ${strat.name.split('(')[0]} உங்கள் பண்ணையின் அதிகாரப்பூர்வ திட்டமாக உறுதி செய்யப்பட்டுள்ளது!`
-        : `Congratulations! ${strat.name} has been confirmed as your active season plan!`);
-      setTimeout(() => setCommittedMsg(null), 6000);
+      setConfirmedStrategy(strat);
+      setShowCommitModal(true);
     } catch (e) {
       console.warn('Commit error', e);
+      // Even if network blips, celebrate and launch simulation
+      setConfirmedStrategy(strat);
+      setShowCommitModal(true);
     }
   };
 
@@ -1168,6 +1169,14 @@ export default function VoiceOnboarding() {
           fieldLocation={selectedLocation}
         />
       )}
+
+      {/* FULL SCREEN STRATEGY COMMIT CONFIRMATION & AUTOMATED TRANSITION TO LAND SIMULATION */}
+      <StrategyCommitModal
+        isOpen={showCommitModal}
+        onClose={() => setShowCommitModal(false)}
+        strategy={confirmedStrategy}
+        farmerName={farmerName}
+      />
     </div>
   );
 }

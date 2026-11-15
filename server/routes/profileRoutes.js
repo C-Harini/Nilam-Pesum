@@ -12,31 +12,35 @@ router.get('/me', authenticateToken, async (req, res) => {
   try {
     let profile = await FieldProfileModel.findByUserId(req.user.userId);
     if (!profile) {
-      // Create blank default profile linked to field01
-      const defaultField = dataLoader.loadFieldMeta('field01');
-      const defaultSoil = dataLoader.loadSoilData('field01');
-
+      // Create initial Tamil Nadu profile linked to user's name
       profile = await FieldProfileModel.createOrUpdate(req.user.userId, {
         userId: req.user.userId,
-        phone: req.user.phone,
-        name: defaultField.name,
-        county: defaultField.county,
-        state: defaultField.state,
-        fieldId: 'field01',
-        location: defaultField.location,
-        areaAcres: defaultField.areaAcres,
-        soil: defaultSoil || {
-          texture: 'Silt loam',
-          organicMatterPct: 3.8,
-          pH: 6.5,
-          drainage: 'Well drained',
-          awcInches: 2.4,
-          source: 'USDA NRCS SSURGO'
+        phone: req.user.phone || '9443123456',
+        name: req.user.name ? `${req.user.name} பண்ணை` : 'தஞ்சாவூர் காவிரி டெல்டா வயல்',
+        farmerName: req.user.name || 'விவசாயி',
+        county: 'Thanjavur (தஞ்சாவூர்)',
+        state: 'Tamil Nadu',
+        fieldId: 'field_tn01',
+        location: { 
+          lat: 10.7870, 
+          lng: 79.1378, 
+          name: 'தஞ்சாவூர் (Thanjavur)', 
+          district: 'Thanjavur', 
+          zone: 'காவிரி டெல்டா' 
         },
-        waterSource: 'rainfed',
-        currentCrop: 'corn',
-        previousCrops: ['soybean', 'corn'],
-        priorities: ['Protect my soil', 'Lower my risk']
+        areaAcres: 5,
+        soil: {
+          texture: 'Alluvial Clay Loam (வண்டல் மண்)',
+          organicMatterPct: 2.1,
+          pH: 7.2,
+          drainage: 'Well drained',
+          awcInches: 2.5,
+          source: 'TNAU Soil Survey / NASA MERRA-2'
+        },
+        waterSource: 'irrigated',
+        currentCrop: 'paddy',
+        previousCrops: ['paddy', 'black_gram'],
+        priorities: ['Save water', 'Protect my soil', 'Earn more', 'Lower my risk']
       });
     }
 

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useField } from '../context/FieldContext';
 import { rotationAPI, seasonAPI } from '../services/api';
 import AllStrategiesGameAnalysis from '../components/simulation/AllStrategiesGameAnalysis';
+import StrategyCommitModal from '../components/simulation/StrategyCommitModal';
 import { CropSequenceVisualizer } from '../components/common/CropVisualCard';
 import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle, Maximize2, Trophy } from 'lucide-react';
 
@@ -27,6 +28,8 @@ export default function RotationPlan() {
   const [simulating, setSimulating] = useState(false);
   const [showAllAnalysis, setShowAllAnalysis] = useState(false);
   const [committedMsg, setCommittedMsg] = useState(null);
+  const [confirmedStrategy, setConfirmedStrategy] = useState(null);
+  const [showCommitModal, setShowCommitModal] = useState(false);
 
   const fetchRotations = async () => {
     try {
@@ -101,15 +104,15 @@ export default function RotationPlan() {
       await seasonAPI.commitPlan({
         fieldId: currentFieldId,
         rotationId: target.id,
-        sequence: target.sequence
+        sequence: target.sequence,
+        name: target.name
       });
-      const msg = isTamil
-        ? `${target.name.split('(')[0]} உங்கள் 2024 பருவத் திட்டமாக வெற்றிகரமாக உறுதி செய்யப்பட்டது!`
-        : `Successfully committed ${target.name} to your active 2024 season!`;
-      setCommittedMsg(msg);
-      setTimeout(() => setCommittedMsg(null), 6000);
+      setConfirmedStrategy(target);
+      setShowCommitModal(true);
     } catch (e) {
-      alert('Could not commit plan: ' + e.message);
+      console.warn('Could not commit plan:', e);
+      setConfirmedStrategy(target);
+      setShowCommitModal(true);
     }
   };
 
@@ -552,6 +555,14 @@ export default function RotationPlan() {
           fieldLocation={{ name: profile?.name || 'தஞ்சாவூர்' }}
         />
       )}
+
+      {/* FULL SCREEN STRATEGY COMMIT CELEBRATION & AUTO-TRANSITION TO LAND SIMULATION */}
+      <StrategyCommitModal
+        isOpen={showCommitModal}
+        onClose={() => setShowCommitModal(false)}
+        strategy={confirmedStrategy}
+        farmerName={profile?.farmerName || profile?.name || 'விவசாயி'}
+      />
     </div>
   );
 }

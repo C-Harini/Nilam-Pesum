@@ -41,22 +41,12 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Field Selector & Controls */}
+        {/* Logged in Farmer Farm Badge (Clean - No Dropdown) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {fieldList.length > 0 && (
-            <div className="relative flex items-center max-w-[130px] sm:max-w-none">
-              <MapPin className="w-3.5 h-3.5 text-soil-600 absolute left-2 pointer-events-none" />
-              <select
-                value={currentFieldId}
-                onChange={(e) => switchField(e.target.value)}
-                className="pl-6 pr-2 py-1.5 text-[11px] font-bold bg-cream-200 border border-soil-300 rounded-xl text-soil-900 focus:outline-none focus:ring-2 focus:ring-field-600 truncate"
-              >
-                {fieldList.map((f) => (
-                  <option key={f.fieldId} value={f.fieldId}>
-                    {f.name} ({f.county})
-                  </option>
-                ))}
-              </select>
+          {profile?.name && (
+            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-field-100 border border-field-300 text-field-900 text-xs font-extrabold shadow-sm">
+              <span className="text-sm">🌾</span>
+              <span className="truncate max-w-[180px]">{profile.name}</span>
             </div>
           )}
 

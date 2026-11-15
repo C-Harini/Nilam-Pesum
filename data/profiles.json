@@ -1,1 +1,78 @@
-[]
+[
+  {
+    "_id": "doc_1794726255418_zk2of2",
+    "createdAt": "2026-11-15T07:04:15.418Z",
+    "updatedAt": "2026-11-15T07:04:15.418Z",
+    "userId": "doc_1794724968384_ygi8ny",
+    "phone": "9870179728",
+    "name": "Story County Pioneer Field",
+    "county": "Story",
+    "state": "Iowa",
+    "fieldId": "field01",
+    "location": {
+      "lat": 42.0308,
+      "lng": -93.6319
+    },
+    "areaAcres": 160,
+    "soil": {
+      "fieldId": "field01",
+      "source": "USDA NRCS Web Soil Survey (SSURGO Database)",
+      "retrievalDate": "2024-10-15",
+      "surveyArea": "IA169 - Story County, Iowa",
+      "mapUnitSymbol": "138B",
+      "mapUnitName": "Clarion loam, 2 to 6 percent slopes",
+      "texture": "Silt loam",
+      "organicMatterPct": 3.8,
+      "pH": 6.5,
+      "drainage": "Well drained",
+      "awcInches": 2.4,
+      "hydrologicSoilGroup": "B",
+      "slopePct": 3,
+      "depthToWaterTableInches": 48,
+      "cationExchangeCapacity": 22.5,
+      "officialUrl": "https://websoilsurvey.nrcs.usda.gov/"
+    },
+    "waterSource": "rainfed",
+    "currentCrop": "corn",
+    "previousCrops": [
+      "soybean",
+      "corn"
+    ],
+    "priorities": [
+      "Protect my soil",
+      "Lower my risk"
+    ]
+  },
+  {
+    "_id": "doc_1794726315725_vjklzs",
+    "createdAt": "2026-11-15T07:05:15.725Z",
+    "updatedAt": "2026-11-15T07:05:15.725Z",
+    "userId": "doc_1794726297317_frlpog",
+    "fieldId": "field_tn01",
+    "name": "selvam பண்ணை",
+    "areaAcres": 5,
+    "location": {
+      "lat": 11.1075,
+      "lng": 79.6524
+    },
+    "soil": {
+      "texture": "Alluvial Clay Loam (வண்டல் மண்)",
+      "organicMatterPct": 2.1,
+      "pH": 7.2,
+      "drainage": "Well drained",
+      "awcInches": 2.5,
+      "source": "TNAU Soil Survey / NASA MERRA-2"
+    },
+    "waterSource": "irrigated",
+    "currentCrop": "paddy",
+    "previousCrops": [
+      "paddy"
+    ],
+    "priorities": [
+      "Save water",
+      "Protect my soil",
+      "Earn more",
+      "Lower my risk"
+    ]
+  }
+]
