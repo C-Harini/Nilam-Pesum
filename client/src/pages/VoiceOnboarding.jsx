@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function VoiceOnboarding() {
-  const { isListening, transcript, startListening, stopListening, speak, stopSpeaking, playSound } = useVoice();
+  const { isListening, transcript, startListening, stopListening, speak, stopSpeaking, isSpeaking, playSound } = useVoice();
   const { fieldList, switchField, currentFieldId, profile } = useField();
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
