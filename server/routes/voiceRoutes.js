@@ -9,8 +9,8 @@ const MAX_CACHE_ENTRIES = 120;
 function fetchChunk(text, lang) {
   return new Promise((resolve, reject) => {
     const url = 'https://translate.google.com/translate_tts?ie=UTF-8&q=' + encodeURIComponent(text) + '&tl=' + encodeURIComponent(lang) + '&client=tw-ob';
-    const req = https.get(url, { 
-      headers: { 
+    const req = https.get(url, {
+      headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'audio/mpeg, audio/*; q=0.9, */*; q=0.5'
       },

@@ -112,8 +112,8 @@ export function VoiceProvider({ children }) {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      // Set recognition language based on current i18n language
-      recognition.lang = i18n.language === 'ta' ? 'ta-IN' : 'en-US';
+      // Voice English Mode Only: Speech Recognition locked to English (en-US)
+      recognition.lang = 'en-US';
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -149,7 +149,7 @@ export function VoiceProvider({ children }) {
     if (!recognitionRef.current) return;
     setTranscript('');
     try {
-      recognitionRef.current.lang = i18n.language === 'ta' ? 'ta-IN' : 'en-US';
+      recognitionRef.current.lang = 'en-US';
       recognitionRef.current.onresult = (event) => {
         let current = '';
         let isFinal = false;
@@ -205,8 +205,8 @@ export function VoiceProvider({ children }) {
     setIsSpeaking(false);
   };
 
-  // Dedicated Browser Male Voice Fallback (valluvar for Tamil Male; David/Mark for English Male)
-  const fallbackSpeechSynthesis = (cleanText, isTamil, currentId) => {
+  // Dedicated English Male Voice Synthesis (Microsoft David / Mark / Guy)
+  const fallbackSpeechSynthesis = (cleanText, currentId) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       if (speechIdRef.current === currentId) setIsSpeaking(false);
       return;
@@ -224,33 +224,24 @@ export function VoiceProvider({ children }) {
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = 0.90;
+      utterance.rate = 0.92;
       utterance.pitch = 0.78; // Deep, natural adult male frequency
-      utterance.lang = isTamil ? 'ta-IN' : 'en-US';
+      utterance.lang = 'en-US';
 
       const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
-      
-      const maleTamilVoice = voices.find(v => 
-        (v.lang === 'ta-IN' || v.lang.startsWith('ta')) && 
-        (v.name.toLowerCase().includes('valluvar') || 
-         v.name.toLowerCase().includes('male') || 
-         v.name.toLowerCase().includes('ravi') ||
-         v.name.toLowerCase().includes('kumar') ||
-         v.name.toLowerCase().includes('man'))
-      ) || voices.find(v => v.lang === 'ta-IN' || v.lang.startsWith('ta'));
 
+      // Specifically select English Male voice (Microsoft David / Mark / Guy / George)
       const maleEnglishVoice = voices.find(v => 
         v.lang.startsWith('en') && 
         (v.name.toLowerCase().includes('david') || 
          v.name.toLowerCase().includes('mark') || 
-         v.name.toLowerCase().includes('male') ||
+         v.name.toLowerCase().includes('guy') ||
          v.name.toLowerCase().includes('george') ||
-         v.name.toLowerCase().includes('guy'))
-      ) || voices.find(v => v.lang.startsWith('en'));
+         v.name.toLowerCase().includes('male'))
+      ) || voices.find(v => v.lang.startsWith('en-US')) || voices.find(v => v.lang.startsWith('en'));
 
-      const selectedVoice = isTamil ? maleTamilVoice : maleEnglishVoice;
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
+      if (maleEnglishVoice) {
+        utterance.voice = maleEnglishVoice;
       }
 
       utterance.onstart = () => {
@@ -281,8 +272,44 @@ export function VoiceProvider({ children }) {
     }
   };
 
+  // Convert Tamil text prompts into clear English speech (Voice English Mode Only)
+  const toEnglishVoiceText = (text) => {
+    if (!text) return '';
+    const TAMIL_MAP = [
+      { match: /தமிழ் பயன்முறை தேர்வு செய்யப்பட்டுள்ளது/i, en: "Tamil interface mode activated. Voice output is running in English mode." },
+      { match: /நிலம் பேசும் விவசாய ஆலோசனை தளத்திற்கு நல்வரவு/i, en: "Welcome to Nilam Pesum Field Voice Advisory. Please sign in to access your farm." },
+      { match: /படிநிலை ஒன்று|உங்கள் பண்ணை மற்றும் நில விவரங்களை/i, en: "Step 1: Farm and land details. Please specify your acreage, soil texture, and irrigation system." },
+      { match: /படிநிலை இரண்டு|நிலம் அமைந்துள்ள இடத்தை வரைபடத்தில்/i, en: "Step 2: Point your farm location anywhere on the map. The pin dynamically moves to your coordinates." },
+      { match: /படிநிலை மூன்று|முன்னர் பயிரிட்ட பயிர்களை/i, en: "Step 3: Multi-select previously grown crops and rank your farming priorities in order of importance." },
+      { match: /படிநிலை ஐந்து|பயிர் சுழற்சி காலத்தைத் தேர்வு/i, en: "Step 5: Select your rotation duration: 1 Year, 2 Years, or 3 Years." },
+      { match: /படிநிலை ஆறு|பரிந்துரைக்கப்பட்ட பயிர் சுழற்சி உத்திகள்/i, en: "Step 6: Recommended crop rotation strategies are ready for your farm. Test each in game mode or commit directly." },
+      { match: /புதிய கணக்கு துவங்க/i, en: "To create an account: enter your name, email, and password. Land details will only be requested once during initial registration." },
+      { match: /உள்நுழைய/i, en: "To sign in: enter your registered email and password. Your personal farm details will load directly without asking for land setup again." },
+      { match: /இன்றைய நில நிலவரம்/i, en: "Today's farm status: root zone moisture, rainfall, and NDVI crop health are loaded." },
+      { match: /பகுப்பாய்வு செய்யப்பட்டது/i, en: "Voice input successfully extracted and verified." },
+      { match: /விளையாட்டு/i, en: "Game mode simulation ready." },
+      { match: /உறுதி செய்/i, en: "Strategy successfully committed." }
+    ];
+
+    for (const item of TAMIL_MAP) {
+      if (item.match.test(text)) {
+        return item.en;
+      }
+    }
+
+    if (/[\u0B80-\u0BFF]/.test(text)) {
+      const cleaned = text.replace(/[\u0B80-\u0BFF]+/g, ' ').replace(/\s+/g, ' ').trim();
+      if (cleaned.length > 3) {
+        return cleaned;
+      }
+      return "Action completed successfully.";
+    }
+    return text;
+  };
+
   /**
-   * Conflict-Free Universal Male Voice Engine:
+   * Conflict-Free Universal Male Voice Engine (English Mode Only):
+   * - Voice English Mode Only: Always speaks in clear, fluent English male tone
    * - Monotonic session token prevents race conditions and double speech
    * - Mic listening is immediately silenced before speaking
    * - Fallback is strictly guarded against duplicate invocations
@@ -299,8 +326,11 @@ export function VoiceProvider({ children }) {
     stopSpeaking();
     const currentId = speechIdRef.current;
 
+    // 3. Convert any Tamil phrases to clear English speech (Voice English Mode Only)
+    const englishText = toEnglishVoiceText(text);
+
     // Clean text: strip markdown bold/italics, headers, emojis, and brackets
-    const cleanSpeechText = text
+    const cleanSpeechText = englishText
       .replace(/\*\*(.*?)\*\*/g, '$1')
       .replace(/\*(.*?)\*/g, '$1')
       .replace(/#+\s*/g, '')
@@ -311,28 +341,25 @@ export function VoiceProvider({ children }) {
 
     if (!cleanSpeechText) return;
 
-    const isTamil = i18n.language === 'ta' || /[\u0B80-\u0BFF]/.test(cleanSpeechText);
-    const lang = isTamil ? 'ta' : 'en';
-
     let fallbackFired = false;
     const safeFallback = () => {
       if (fallbackFired) return;
       fallbackFired = true;
       if (speechIdRef.current !== currentId) return;
-      fallbackSpeechSynthesis(cleanSpeechText, isTamil, currentId);
+      fallbackSpeechSynthesis(cleanSpeechText, currentId);
     };
 
     try {
-      const audioUrl = `/api/voice/tts?text=${encodeURIComponent(cleanSpeechText)}&lang=${lang}`;
+      // Voice English Mode Only: Always request lang=en
+      const audioUrl = `/api/voice/tts?text=${encodeURIComponent(cleanSpeechText)}&lang=en`;
       const audio = new Audio(audioUrl);
       
       // Male Voice Formant Shaping:
-      // Disabling pitch preservation and lowering playback rate shifts formants down by 14%
-      // converting female/neutral TTS into a rich, natural male tone
+      // Lowering playback rate shifts formants down into rich adult male advisor tone
       audio.preservesPitch = false;
       audio.mozPreservesPitch = false;
       audio.webkitPreservesPitch = false;
-      audio.playbackRate = 0.88;
+      audio.playbackRate = 0.90;
 
       audioPlayerRef.current = audio;
       setIsSpeaking(true);

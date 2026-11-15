@@ -90,7 +90,7 @@ export default function FieldToday() {
           }`}
         >
           <Volume2 className="w-4 h-4 text-field-700" />
-          <span>{isSpeaking ? (isTamil ? 'நிறுத்து' : 'Pause') : (isTamil ? '👨‍🌾 ஆண் குரலில் கேட்க' : '👨‍🌾 Listen (Male)')}</span>
+          <span>{isSpeaking ? (isTamil ? 'நிறுத்து' : 'Pause') : (isTamil ? '👨‍🌾 குரலில் கேட்க (English Voice)' : '👨‍🌾 Listen (English Male)')}</span>
         </button>
       </div>
 

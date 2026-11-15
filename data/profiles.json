@@ -421,5 +421,71 @@
       "Earn more",
       "Lower my risk"
     ]
+  },
+  {
+    "_id": "doc_1794737058091_f577q3",
+    "createdAt": "2026-11-15T10:04:18.091Z",
+    "updatedAt": "2026-11-15T10:09:36.572Z",
+    "userId": "doc_1794737033285_99d9a2",
+    "fieldId": "field_tn01",
+    "name": "Harini பண்ணை",
+    "areaAcres": 5,
+    "location": {
+      "lat": 10.7725,
+      "lng": 79.6365
+    },
+    "soil": {
+      "texture": "Alluvial Clay Loam (வண்டல் மண்)",
+      "organicMatterPct": 2.1,
+      "pH": 7.2,
+      "drainage": "Well drained",
+      "awcInches": 2.5,
+      "source": "TNAU Soil Survey / NASA MERRA-2"
+    },
+    "waterSource": "rainfed",
+    "currentCrop": "paddy",
+    "previousCrops": [
+      "paddy",
+      "groundnut"
+    ],
+    "priorities": [
+      "Save water",
+      "Protect my soil",
+      "Earn more",
+      "Lower my risk"
+    ]
+  },
+  {
+    "_id": "doc_1794737416021_4zqnee",
+    "createdAt": "2026-11-15T10:10:16.021Z",
+    "updatedAt": "2026-11-15T10:10:16.021Z",
+    "userId": "doc_1794737406743_4fzchp",
+    "fieldId": "field_tn01",
+    "name": "Harini பண்ணை",
+    "areaAcres": 5,
+    "location": {
+      "lat": 10.7725,
+      "lng": 79.6365
+    },
+    "soil": {
+      "texture": "Alluvial Clay Loam (வண்டல் மண்)",
+      "organicMatterPct": 2.1,
+      "pH": 7.2,
+      "drainage": "Well drained",
+      "awcInches": 2.5,
+      "source": "TNAU Soil Survey / NASA MERRA-2"
+    },
+    "waterSource": "rainfed",
+    "currentCrop": "paddy",
+    "previousCrops": [
+      "paddy",
+      "groundnut"
+    ],
+    "priorities": [
+      "Save water",
+      "Protect my soil",
+      "Earn more",
+      "Lower my risk"
+    ]
   }
 ]
