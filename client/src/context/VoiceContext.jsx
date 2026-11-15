@@ -13,6 +13,7 @@ export function VoiceProvider({ children }) {
 
   const recognitionRef = useRef(null);
   const audioCtxRef = useRef(null);
+  const audioPlayerRef = useRef(null);
 
   // Initialize available voices and listen for voiceschanged event
   useEffect(() => {
@@ -172,24 +173,25 @@ export function VoiceProvider({ children }) {
     setIsListening(false);
   };
 
-  const speak = (text) => {
-    if (!window.speechSynthesis) return;
+  // Fallback to Web Speech Synthesis API if audio network fails or in offline mode
+  const fallbackSpeechSynthesis = (cleanText, isTamil) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      setIsSpeaking(false);
+      return;
+    }
     try {
-      window.speechSynthesis.cancel(); // Stop prior speech
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95; // Clear natural pacing for farmers
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = 0.95;
       utterance.pitch = 1.0;
-
-      const isTamil = i18n.language === 'ta' || /[\u0B80-\u0BFF]/.test(text);
       utterance.lang = isTamil ? 'ta-IN' : 'en-US';
 
-      // Pick best matching voice
       const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
       if (isTamil && voices.length > 0) {
-        const tamilVoice = voices.find(v =>
-          v.lang === 'ta-IN' ||
-          v.lang.startsWith('ta') ||
-          v.name.toLowerCase().includes('tamil') ||
+        const tamilVoice = voices.find(v => 
+          v.lang === 'ta-IN' || 
+          v.lang.startsWith('ta') || 
+          v.name.toLowerCase().includes('tamil') || 
           v.name.toLowerCase().includes('valluvar')
         );
         if (tamilVoice) {
@@ -200,7 +202,7 @@ export function VoiceProvider({ children }) {
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = (e) => {
-        console.warn('TTS error', e);
+        console.warn('SpeechSynthesis fallback error', e);
         setIsSpeaking(false);
       };
 
@@ -211,11 +213,70 @@ export function VoiceProvider({ children }) {
     }
   };
 
-  const stopSpeaking = () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+  /**
+   * Universal Speech Output:
+   * 1. Primary Engine: High-fidelity native Tamil/English audio stream via /api/voice/tts
+   * 2. Secondary Engine: Browser Web Speech API fallback
+   */
+  const speak = (text) => {
+    if (!text || typeof text !== 'string') return;
+
+    // Immediately stop any existing speech or audio
+    stopSpeaking();
+
+    // Clean text: strip markdown bold/italics, headers, emojis, and brackets
+    const cleanSpeechText = text
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/#+\s*/g, '')
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+      .replace(/[^\p{L}\p{N}\s.,!?'"()-]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!cleanSpeechText) return;
+
+    const isTamil = i18n.language === 'ta' || /[\u0B80-\u0BFF]/.test(cleanSpeechText);
+    const lang = isTamil ? 'ta' : 'en';
+
+    try {
+      const audioUrl = `/api/voice/tts?text=${encodeURIComponent(cleanSpeechText)}&lang=${lang}`;
+      const audio = new Audio(audioUrl);
+      audioPlayerRef.current = audio;
+      setIsSpeaking(true);
+
+      audio.onended = () => {
+        setIsSpeaking(false);
+      };
+
+      audio.onerror = (err) => {
+        console.warn('[Native TTS Audio error, switching to browser synthesis]', err);
+        fallbackSpeechSynthesis(cleanSpeechText, isTamil);
+      };
+
+      audio.play().catch((playErr) => {
+        // Autoplay policy or browser block -> fallback to speechSynthesis
+        console.warn('[Audio play interrupted, using Web Speech]', playErr);
+        fallbackSpeechSynthesis(cleanSpeechText, isTamil);
+      });
+    } catch (err) {
+      console.warn('[Audio constructor error]', err);
+      fallbackSpeechSynthesis(cleanSpeechText, isTamil);
     }
+  };
+
+  const stopSpeaking = () => {
+    if (audioPlayerRef.current) {
+      try {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current.currentTime = 0;
+      } catch (e) {}
+      audioPlayerRef.current = null;
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
   };
 
   return (

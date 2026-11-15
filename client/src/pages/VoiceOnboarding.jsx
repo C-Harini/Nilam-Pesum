@@ -12,7 +12,7 @@ import StrategyCommitModal from '../components/simulation/StrategyCommitModal';
 import { CropSequenceVisualizer } from '../components/common/CropVisualCard';
 import LanguageModeToggle from '../components/common/LanguageModeToggle';
 import { 
-  Mic, MicOff, Check, Edit2, Volume2, Shield, DollarSign, 
+  Mic, MicOff, Check, Edit2, Volume2, VolumeX, Shield, DollarSign, 
   Droplets, AlertTriangle, ArrowRight, ArrowLeft, MapPin, 
   Sparkles, Trophy, CheckCircle2, RefreshCw, Satellite, Calendar,
   Sliders, Award, Maximize2, ChevronUp, ChevronDown
