@@ -20,24 +20,36 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, [token]);
 
-  const login = async (phone, pin) => {
-    const res = await authAPI.login({ phone, pin });
-    const { token: newToken, user: newUser, greeting } = res.data;
+  const login = async (...args) => {
+    let payload = {};
+    if (typeof args[0] === 'object' && args[0] !== null) {
+      payload = args[0];
+    } else {
+      payload = { phone: args[0], pin: args[1] };
+    }
+    const res = await authAPI.login(payload);
+    const { token: newToken, user: newUser, greeting, isNewUser } = res.data;
     localStorage.setItem('nilam_pesum_token', newToken);
     localStorage.setItem('nilam_pesum_user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
-    return { user: newUser, greeting };
+    return { user: newUser, greeting, isNewUser };
   };
 
-  const register = async (phone, pin, name) => {
-    const res = await authAPI.register({ phone, pin, name });
+  const register = async (...args) => {
+    let payload = {};
+    if (typeof args[0] === 'object' && args[0] !== null) {
+      payload = args[0];
+    } else {
+      payload = { phone: args[0], pin: args[1], name: args[2] };
+    }
+    const res = await authAPI.register(payload);
     const { token: newToken, user: newUser, greeting } = res.data;
     localStorage.setItem('nilam_pesum_token', newToken);
     localStorage.setItem('nilam_pesum_user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
-    return { user: newUser, greeting };
+    return { user: newUser, greeting, isNewUser: true };
   };
 
   const demoLogin = async () => {

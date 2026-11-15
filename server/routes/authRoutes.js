@@ -6,38 +6,57 @@ const FieldProfileModel = require('../models/FieldProfile');
 const { JWT_SECRET } = require('../middleware/auth');
 
 /**
- * Register new farmer with phone & 4-digit PIN
+ * Register new farmer with email & password (or phone & PIN)
  */
 router.post('/register', async (req, res) => {
   try {
-    const { phone, pin, name } = req.body;
+    const { email, password, phone, pin, name } = req.body;
 
-    if (!phone || !pin) {
-      return res.status(400).json({ error: 'Phone number and 4-digit PIN are required.' });
+    const secret = password || pin;
+    if (!secret) {
+      return res.status(400).json({ error: 'Password or PIN is required.' });
     }
 
-    if (!/^\d{4}$/.test(pin.toString())) {
-      return res.status(400).json({ error: 'PIN must be exactly 4 numeric digits.' });
+    // Determine identifier: Email or Phone
+    let cleanEmail = null;
+    let cleanPhone = null;
+
+    if (email) {
+      cleanEmail = email.trim().toLowerCase();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanEmail)) {
+        return res.status(400).json({ error: 'Please provide a valid email address.' });
+      }
+      const existingEmail = await UserModel.findByEmail(cleanEmail);
+      if (existingEmail) {
+        return res.status(409).json({ error: 'An account with this email already exists. Please log in.' });
+      }
     }
 
-    const cleanPhone = phone.toString().replace(/\D/g, '');
-    if (cleanPhone.length < 10) {
-      return res.status(400).json({ error: 'Please enter a valid 10-digit phone number.' });
+    if (phone) {
+      cleanPhone = phone.toString().replace(/\D/g, '');
+      if (cleanPhone.length >= 10) {
+        const existingPhone = await UserModel.findByPhone(cleanPhone);
+        if (existingPhone) {
+          return res.status(409).json({ error: 'An account with this phone number already exists. Please log in.' });
+        }
+      }
     }
 
-    let existing = await UserModel.findByPhone(cleanPhone);
-    if (existing) {
-      return res.status(409).json({ error: 'An account with this phone number already exists. Please log in.' });
+    if (!cleanEmail && !cleanPhone) {
+      return res.status(400).json({ error: 'Please provide either an email address or phone number.' });
     }
 
     const user = await UserModel.create({
+      email: cleanEmail,
       phone: cleanPhone,
-      pin: pin.toString(),
+      password: secret.toString(),
+      pin: pin ? pin.toString() : secret.toString(),
       name: name || 'Farmer'
     });
 
     const token = jwt.sign(
-      { userId: user._id, phone: user.phone, name: user.name },
+      { userId: user._id, email: user.email, phone: user.phone, name: user.name },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
@@ -45,8 +64,9 @@ router.post('/register', async (req, res) => {
     return res.status(201).json({
       message: 'Account created successfully',
       token,
-      user: { id: user._id, phone: user.phone, name: user.name },
-      greeting: `Welcome to Nilam Pesum, ${user.name}! Let's build your field voice profile.`
+      user: { id: user._id, email: user.email, phone: user.phone, name: user.name },
+      isNewUser: true,
+      greeting: `Welcome to Nilam Pesum, ${user.name}! Let's build your field profile.`
     });
   } catch (err) {
     return res.status(500).json({ error: 'Registration error: ' + err.message });
@@ -54,78 +74,49 @@ router.post('/register', async (req, res) => {
 });
 
 /**
- * Log in with phone & PIN
+ * Log in with Email & Password or Phone & PIN
  */
 router.post('/login', async (req, res) => {
   try {
-    const { phone, pin } = req.body;
+    const { email, password, phone, pin, identifier } = req.body;
 
-    if (!phone || !pin) {
-      return res.status(400).json({ error: 'Phone number and PIN are required.' });
+    const userIdentifier = identifier || email || phone;
+    const secret = password || pin;
+
+    if (!userIdentifier || !secret) {
+      return res.status(400).json({ error: 'Email/Phone and Password/PIN are required.' });
     }
 
-    const cleanPhone = phone.toString().replace(/\D/g, '');
-
-    // Support universal demo login with PIN 1234
-    if (pin.toString() === '1234') {
-      let demoUser = await UserModel.findByPhone(cleanPhone || '5550199000');
-      if (!demoUser) {
-        demoUser = await UserModel.create({
-          phone: cleanPhone || '5550199000',
-          pin: '1234',
-          name: 'Demo Farmer'
-        });
-        // Seed default profile for demo
-        await FieldProfileModel.createOrUpdate(demoUser._id, {
-          userId: demoUser._id,
-          phone: demoUser.phone,
-          name: 'Story County Pioneer Field',
-          county: 'Story',
-          state: 'Iowa',
-          fieldId: 'field01',
-          location: { lat: 42.0308, lng: -93.6319 },
-          areaAcres: 160,
-          soil: {
-            texture: 'Silt loam',
-            organicMatterPct: 3.8,
-            pH: 6.5,
-            drainage: 'Well drained',
-            awcInches: 2.4,
-            source: 'USDA NRCS SSURGO'
-          },
-          waterSource: 'rainfed',
-          currentCrop: 'corn',
-          previousCrops: ['soybean', 'corn', 'soybean'],
-          priorities: ['Protect my soil', 'Lower my risk', 'Earn more']
+    // Support universal demo login with secret 1234
+    if (secret.toString() === '1234' && (userIdentifier === 'demo' || userIdentifier.includes('555') || userIdentifier === '9443123456' || userIdentifier === '9876543210')) {
+      let demoUser = await UserModel.findByIdentifier(userIdentifier) || await UserModel.findByPhone('9443123456');
+      if (demoUser) {
+        const token = jwt.sign(
+          { userId: demoUser._id, phone: demoUser.phone, name: demoUser.name },
+          JWT_SECRET,
+          { expiresIn: '30d' }
+        );
+        return res.json({
+          message: 'Demo login successful',
+          token,
+          user: { id: demoUser._id, phone: demoUser.phone, name: demoUser.name },
+          greeting: `Welcome back, ${demoUser.name}. Your field is ready.`
         });
       }
-
-      const token = jwt.sign(
-        { userId: demoUser._id, phone: demoUser.phone, name: demoUser.name },
-        JWT_SECRET,
-        { expiresIn: '30d' }
-      );
-
-      return res.json({
-        message: 'Demo login successful',
-        token,
-        user: { id: demoUser._id, phone: demoUser.phone, name: demoUser.name },
-        greeting: `Welcome back, ${demoUser.name}. Your field is ready.`
-      });
     }
 
-    const user = await UserModel.findByPhone(cleanPhone);
+    const user = await UserModel.findByIdentifier(userIdentifier);
     if (!user) {
-      return res.status(404).json({ error: 'No account found with this phone number. Please register.' });
+      return res.status(404).json({ error: 'No account found with this email or phone number. Please register.' });
     }
 
-    const isValid = await UserModel.verifyPin(user, pin.toString());
+    const isValid = await UserModel.verifyPassword(user, secret.toString());
     if (!isValid) {
-      return res.status(401).json({ error: 'Incorrect 4-digit PIN. Please try again.' });
+      return res.status(401).json({ error: 'Incorrect password or PIN. Please try again.' });
     }
 
     const token = jwt.sign(
-      { userId: user._id, phone: user.phone, name: user.name },
+      { userId: user._id, email: user.email, phone: user.phone, name: user.name },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
@@ -133,7 +124,7 @@ router.post('/login', async (req, res) => {
     return res.json({
       message: 'Login successful',
       token,
-      user: { id: user._id, phone: user.phone, name: user.name },
+      user: { id: user._id, email: user.email, phone: user.phone, name: user.name },
       greeting: `Welcome back to Nilam Pesum, ${user.name}!`
     });
   } catch (err) {

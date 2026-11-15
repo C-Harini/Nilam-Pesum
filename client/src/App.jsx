@@ -39,7 +39,9 @@ function ProtectedRoute({ children }) {
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center font-bold text-xs text-soil-600">Loading Farm State...</div>;
   }
-  // Allow demo bypass even if user is guest
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
   return children;
 }
 
