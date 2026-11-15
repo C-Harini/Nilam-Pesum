@@ -268,5 +268,85 @@
       "Earn more",
       "Lower my risk"
     ]
+  },
+  {
+    "_id": "doc_1794734445405_bdvjsl",
+    "createdAt": "2026-11-15T09:20:45.405Z",
+    "updatedAt": "2026-11-15T09:20:45.405Z",
+    "userId": "doc_1794734354345_tenpnx",
+    "phone": "9824218172",
+    "name": "1 பண்ணை",
+    "farmerName": "1",
+    "county": "Thanjavur (தஞ்சாவூர்)",
+    "state": "Tamil Nadu",
+    "fieldId": "field_tn01",
+    "location": {
+      "lat": 10.787,
+      "lng": 79.1378,
+      "name": "தஞ்சாவூர் (Thanjavur)",
+      "district": "Thanjavur",
+      "zone": "காவிரி டெல்டா"
+    },
+    "areaAcres": 5,
+    "soil": {
+      "texture": "Alluvial Clay Loam (வண்டல் மண்)",
+      "organicMatterPct": 2.1,
+      "pH": 7.2,
+      "drainage": "Well drained",
+      "awcInches": 2.5,
+      "source": "TNAU Soil Survey / NASA MERRA-2"
+    },
+    "waterSource": "irrigated",
+    "currentCrop": "paddy",
+    "previousCrops": [
+      "paddy",
+      "black_gram"
+    ],
+    "priorities": [
+      "Save water",
+      "Protect my soil",
+      "Earn more",
+      "Lower my risk"
+    ]
+  },
+  {
+    "_id": "doc_1794735231717_bked51",
+    "createdAt": "2026-11-15T09:33:51.717Z",
+    "updatedAt": "2026-11-15T09:33:51.717Z",
+    "userId": "doc_1794734518932_domq2g",
+    "phone": "9871251644",
+    "name": "2 பண்ணை",
+    "farmerName": "2",
+    "county": "Thanjavur (தஞ்சாவூர்)",
+    "state": "Tamil Nadu",
+    "fieldId": "field_tn01",
+    "location": {
+      "lat": 10.787,
+      "lng": 79.1378,
+      "name": "தஞ்சாவூர் (Thanjavur)",
+      "district": "Thanjavur",
+      "zone": "காவிரி டெல்டா"
+    },
+    "areaAcres": 5,
+    "soil": {
+      "texture": "Alluvial Clay Loam (வண்டல் மண்)",
+      "organicMatterPct": 2.1,
+      "pH": 7.2,
+      "drainage": "Well drained",
+      "awcInches": 2.5,
+      "source": "TNAU Soil Survey / NASA MERRA-2"
+    },
+    "waterSource": "irrigated",
+    "currentCrop": "paddy",
+    "previousCrops": [
+      "paddy",
+      "black_gram"
+    ],
+    "priorities": [
+      "Save water",
+      "Protect my soil",
+      "Earn more",
+      "Lower my risk"
+    ]
   }
 ]

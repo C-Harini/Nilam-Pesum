@@ -54,26 +54,32 @@ export default function VoiceOnboarding() {
 
   // Pre-load saved farmer profile if user already entered land details previously
   useEffect(() => {
-    if (profile && (profile.areaAcres || profile.location)) {
-      setHasExistingProfile(true);
-      if (profile.name || profile.farmerName) {
-        setFarmerName(profile.farmerName || profile.name.replace(' பண்ணை', ''));
+    try {
+      if (profile && (profile.areaAcres || profile.location)) {
+        setHasExistingProfile(true);
+        if (profile.farmerName) {
+          setFarmerName(profile.farmerName);
+        } else if (typeof profile.name === 'string') {
+          setFarmerName(profile.name.replace(' பண்ணை', ''));
+        }
+        if (profile.areaAcres) setAcres(profile.areaAcres);
+        if (profile.soil?.texture) setSoilTexture(profile.soil.texture);
+        if (profile.waterSource) setWaterSource(profile.waterSource);
+        if (profile.location?.lat) {
+          setSelectedLocation({
+            lat: profile.location.lat,
+            lng: profile.location.lng,
+            name: profile.location.name || profile.county || 'தஞ்சாவூர் (Thanjavur)',
+            district: profile.location.district || 'Thanjavur',
+            zone: profile.location.zone || 'காவிரி டெல்டா (Cauvery Delta)'
+          });
+        }
+        if (Array.isArray(profile.previousCrops) && profile.previousCrops.length > 0) {
+          setSelectedPreviousCrops(profile.previousCrops);
+        }
       }
-      if (profile.areaAcres) setAcres(profile.areaAcres);
-      if (profile.soil?.texture) setSoilTexture(profile.soil.texture);
-      if (profile.waterSource) setWaterSource(profile.waterSource);
-      if (profile.location?.lat) {
-        setSelectedLocation({
-          lat: profile.location.lat,
-          lng: profile.location.lng,
-          name: profile.location.name || profile.county || 'தஞ்சாவூர் (Thanjavur)',
-          district: profile.location.district || 'Thanjavur',
-          zone: profile.location.zone || 'காவிரி டெல்டா (Cauvery Delta)'
-        });
-      }
-      if (profile.previousCrops && profile.previousCrops.length > 0) {
-        setSelectedPreviousCrops(profile.previousCrops);
-      }
+    } catch (err) {
+      console.warn('Profile pre-load error:', err);
     }
   }, [profile]);
 
@@ -400,7 +406,7 @@ export default function VoiceOnboarding() {
                 {isTamil ? `வணக்கம் ${farmerName || user?.name || 'விவசாயி'}! உங்கள் நில விவரங்கள் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளன.` : `Welcome ${farmerName || user?.name || 'Farmer'}! Your farm details are already saved.`}
               </div>
               <div className="text-[11px] text-soil-700 font-medium mt-0.5">
-                {acres} {isTamil ? 'ஏக்கர்' : 'acres'} • {soilTexture.split('(')[0]} • {selectedLocation.name}
+                {acres} {isTamil ? 'ஏக்கர்' : 'acres'} • {(soilTexture || '').split('(')[0]} • {selectedLocation?.name || 'தஞ்சாவூர்'}
               </div>
             </div>
           </div>
@@ -642,7 +648,7 @@ export default function VoiceOnboarding() {
                     playSound('chime');
                   }}
                   className={`px-2.5 py-1 rounded-xl text-xs font-bold border transition ${
-                    selectedLocation.lat === p.lat && selectedLocation.lng === p.lng
+                    selectedLocation?.lat === p.lat && selectedLocation?.lng === p.lng
                       ? 'bg-field-600 text-cream-50 border-field-600 shadow-sm ring-2 ring-field-600/30'
                       : 'bg-cream-50 text-soil-800 border-soil-300 hover:bg-cream-200'
                   }`}
@@ -655,7 +661,7 @@ export default function VoiceOnboarding() {
 
           {/* Interactive Leaflet Map with Movable / Draggable Pin */}
           <FieldMap
-            center={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
+            center={{ lat: selectedLocation?.lat || 10.7870, lng: selectedLocation?.lng || 79.1378 }}
             fields={fieldList}
             selectedFieldId={currentFieldId}
             onLocationSelect={(loc) => {
@@ -669,9 +675,9 @@ export default function VoiceOnboarding() {
               <MapPin className="w-4 h-4 text-field-700 flex-shrink-0 animate-bounce" />
               <div>
                 <span>{isTamil ? 'தேர்வு செய்யப்பட்ட இடம்:' : 'Selected Parcel:'}</span>{' '}
-                <strong className="text-field-800">{selectedLocation.name}</strong>
+                <strong className="text-field-800">{selectedLocation?.name || 'தஞ்சாவூர் (Thanjavur)'}</strong>
                 <div className="text-[11px] font-mono text-soil-700 mt-0.5">
-                  அட்சரேகை: <strong>{selectedLocation.lat}° N</strong>, தீர்க்கரேகை: <strong>{selectedLocation.lng}° E</strong>
+                  அட்சரேகை: <strong>{selectedLocation?.lat || 10.7870}° N</strong>, தீர்க்கரேகை: <strong>{selectedLocation?.lng || 79.1378}° E</strong>
                 </div>
               </div>
             </div>
@@ -1209,7 +1215,7 @@ export default function VoiceOnboarding() {
           onClose={() => setShowAllStrategiesAnalysis(false)}
           strategies={strategies}
           onCommitStrategy={handleCommitPlan}
-          fieldLocation={selectedLocation}
+          fieldLocation={selectedLocation || { lat: 10.7870, lng: 79.1378, name: 'தஞ்சாவூர்' }}
         />
       )}
 

@@ -6,6 +6,7 @@ import { FieldProvider } from './context/FieldContext';
 
 import Navbar from './components/common/Navbar';
 import BottomNav from './components/common/BottomNav';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 import WelcomeLogin from './pages/WelcomeLogin';
 import VoiceOnboarding from './pages/VoiceOnboarding';
@@ -51,22 +52,24 @@ export default function App() {
       <VoiceProvider>
         <FieldProvider>
           <Router>
-            <AppLayout>
-              <Routes>
-                <Route path="/login" element={<WelcomeLogin />} />
-                <Route path="/onboarding" element={<VoiceOnboarding />} />
-                <Route path="/today" element={<ProtectedRoute><FieldToday /></ProtectedRoute>} />
-                <Route path="/plan" element={<ProtectedRoute><RotationPlan /></ProtectedRoute>} />
-                <Route path="/season" element={<ProtectedRoute><SeasonCompanion /></ProtectedRoute>} />
-                <Route path="/timemachine" element={<ProtectedRoute><TimeMachinePage /></ProtectedRoute>} />
-                <Route path="/game" element={<ProtectedRoute><FarmGamePage /></ProtectedRoute>} />
-                <Route path="/talk" element={<ProtectedRoute><TalkPage /></ProtectedRoute>} />
-                <Route path="/data-check" element={<DataCheckPage />} />
-                <Route path="/sources" element={<SourcesCreditsPage />} />
-                <Route path="/extension" element={<ExtensionOfficer />} />
-                <Route path="*" element={<Navigate to="/today" replace />} />
-              </Routes>
-            </AppLayout>
+            <ErrorBoundary>
+              <AppLayout>
+                <Routes>
+                  <Route path="/login" element={<WelcomeLogin />} />
+                  <Route path="/onboarding" element={<VoiceOnboarding />} />
+                  <Route path="/today" element={<ProtectedRoute><FieldToday /></ProtectedRoute>} />
+                  <Route path="/plan" element={<ProtectedRoute><RotationPlan /></ProtectedRoute>} />
+                  <Route path="/season" element={<ProtectedRoute><SeasonCompanion /></ProtectedRoute>} />
+                  <Route path="/timemachine" element={<ProtectedRoute><TimeMachinePage /></ProtectedRoute>} />
+                  <Route path="/game" element={<ProtectedRoute><FarmGamePage /></ProtectedRoute>} />
+                  <Route path="/talk" element={<ProtectedRoute><TalkPage /></ProtectedRoute>} />
+                  <Route path="/data-check" element={<DataCheckPage />} />
+                  <Route path="/sources" element={<SourcesCreditsPage />} />
+                  <Route path="/extension" element={<ExtensionOfficer />} />
+                  <Route path="*" element={<Navigate to="/today" replace />} />
+                </Routes>
+              </AppLayout>
+            </ErrorBoundary>
           </Router>
         </FieldProvider>
       </VoiceProvider>
