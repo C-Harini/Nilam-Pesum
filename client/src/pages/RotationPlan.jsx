@@ -91,15 +91,19 @@ export default function RotationPlan() {
     }
   };
 
-  const handleCommitSeason = async () => {
-    if (!selectedRotation) return;
+  const handleCommitSeason = async (rot) => {
+    const target = rot || selectedRotation;
+    if (!target) return;
     try {
       await seasonAPI.commitPlan({
         fieldId: currentFieldId,
-        rotationId: selectedRotation.id,
-        sequence: selectedRotation.sequence
+        rotationId: target.id,
+        sequence: target.sequence
       });
-      setCommittedMsg(`Successfully committed ${selectedRotation.name} to your active 2024 season!`);
+      const msg = isTamil
+        ? `${target.name.split('(')[0]} உங்கள் 2024 பருவத் திட்டமாக வெற்றிகரமாக உறுதி செய்யப்பட்டது!`
+        : `Successfully committed ${target.name} to your active 2024 season!`;
+      setCommittedMsg(msg);
       setTimeout(() => setCommittedMsg(null), 6000);
     } catch (e) {
       alert('Could not commit plan: ' + e.message);
@@ -227,21 +231,45 @@ export default function RotationPlan() {
                 </div>
               </div>
 
-              {/* Quick Game Play button on Selected Card */}
-              {isSelected && (
-                <div className="mt-3 pt-2 border-t border-soil-200">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/game?strategy=${rot.id}`);
-                    }}
-                    className="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow active:scale-95 transition"
-                  >
-                    <Trophy className="w-4 h-4" />
-                    <span>{isTamil ? '🎮 இந்த உத்தியை விளையாட்டாக உருவகப்படுத்து' : '🎮 Test This Strategy in Game'}</span>
-                  </button>
-                </div>
-              )}
+              {/* 3 Action Buttons on EACH strategy card */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3 pt-3 border-t border-soil-200">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/game?strategy=${rot.id}`);
+                  }}
+                  className="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-display font-extrabold text-xs shadow-tactile flex items-center justify-center gap-1.5 active:scale-95 transition ring-2 ring-amber-300"
+                >
+                  <Trophy className="w-4 h-4 text-stone-950" />
+                  <span>{isTamil ? '🎮 விளையாட்டாக பரிசோதி' : '🎮 Test in Game'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    selectRotation(rot);
+                    navigate('/timemachine?fullscreen=true');
+                  }}
+                  className="py-2.5 px-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-cream-50 font-display font-extrabold text-xs shadow-tactile flex items-center justify-center gap-1.5 active:scale-95 transition"
+                >
+                  <Maximize2 className="w-4 h-4 text-emerald-300" />
+                  <span>{isTamil ? '🌾 நிலத்தை முழுத்திரையில் பார்' : '🌾 Simulate Land'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCommitSeason(rot);
+                  }}
+                  className="btn-primary w-full py-2.5 px-3 text-xs font-bold shadow-tactile flex items-center justify-center gap-1.5"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-wheat-400" />
+                  <span>{isTamil ? '🏆 இச்சுழற்சியை உறுதி செய்' : '🏆 Commit Plan'}</span>
+                </button>
+              </div>
             </div>
           );
         })}

@@ -90,11 +90,18 @@ export default function WelcomeLogin() {
       setLoading(true);
       setError(null);
       if (isRegistering) {
+        const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
+        const effectivePhone = cleanPhone && cleanPhone.length >= 10 
+          ? cleanPhone 
+          : `98${Math.floor(10000000 + Math.random() * 90000000)}`;
+        const numericPin = /^\d{4}$/.test(password) ? password : '1234';
+
         const { greeting } = await register({
           name: name || (isTamil ? 'விவசாயி' : 'Farmer'),
           email: email.trim().toLowerCase(),
           password,
-          phone: phone ? phone.replace(/\D/g, '') : undefined
+          pin: numericPin, // Dual compatibility with both new email auth and legacy PIN endpoints
+          phone: effectivePhone
         });
         
         speak(greeting || (isTamil
@@ -103,9 +110,13 @@ export default function WelcomeLogin() {
         // First-time registering goes straight to Voice Guided Onboarding
         navigate('/onboarding');
       } else {
+        const cleanEmail = email.trim().toLowerCase();
         const { greeting } = await login({
-          identifier: email.trim().toLowerCase(),
-          password
+          identifier: cleanEmail,
+          email: cleanEmail,
+          phone: cleanEmail.replace(/\D/g, '') || cleanEmail,
+          password,
+          pin: password // Send both password and pin
         });
         
         speak(greeting || (isTamil

@@ -11,7 +11,7 @@ import {
   Mic, MicOff, Check, Edit2, Volume2, Shield, DollarSign, 
   Droplets, AlertTriangle, ArrowRight, ArrowLeft, MapPin, 
   Sparkles, Trophy, CheckCircle2, RefreshCw, Satellite, Calendar,
-  Sliders, Award
+  Sliders, Award, Maximize2
 } from 'lucide-react';
 
 export default function VoiceOnboarding() {
@@ -837,21 +837,33 @@ export default function VoiceOnboarding() {
                     </div>
                   </div>
 
-                  {/* Action Buttons: Game Mode for Each & Commit */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-soil-200">
-                    {/* Game Mode Button for this strategy */}
+                  {/* 3 Action Buttons on EACH strategy card (Matching requested design) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2.5 border-t border-soil-200">
+                    {/* Button 1: Game Mode */}
                     <button
+                      type="button"
                       onClick={() => setActiveGameStrategyId(strat.id)}
-                      className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-extrabold text-xs shadow flex items-center justify-center gap-1.5 active:scale-95 transition ring-2 ring-amber-300"
+                      className="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-display font-extrabold text-xs shadow-tactile flex items-center justify-center gap-1.5 active:scale-95 transition ring-2 ring-amber-300"
                     >
-                      <Trophy className="w-4 h-4" />
-                      <span>{isTamil ? '🎮 விளையாட்டாக விளையாடிப் பார்' : '🎮 Play in Game Mode'}</span>
+                      <Trophy className="w-4 h-4 text-stone-950" />
+                      <span>{isTamil ? '🎮 விளையாட்டாக பரிசோதி' : '🎮 Test in Game'}</span>
                     </button>
 
-                    {/* Commit Plan Button */}
+                    {/* Button 2: Land Full Screen */}
                     <button
+                      type="button"
+                      onClick={() => navigate('/timemachine?fullscreen=true')}
+                      className="py-2.5 px-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-cream-50 font-display font-extrabold text-xs shadow-tactile flex items-center justify-center gap-1.5 active:scale-95 transition"
+                    >
+                      <Maximize2 className="w-4 h-4 text-emerald-300" />
+                      <span>{isTamil ? '🌾 நிலத்தை முழுத்திரையில் பார்' : '🌾 Simulate Land'}</span>
+                    </button>
+
+                    {/* Button 3: Commit Plan */}
+                    <button
+                      type="button"
                       onClick={() => handleCommitPlan(strat)}
-                      className="btn-primary py-2.5 px-3 text-xs font-bold flex items-center justify-center gap-1.5 shadow"
+                      className="btn-primary w-full py-2.5 px-3 text-xs font-bold shadow-tactile flex items-center justify-center gap-1.5"
                     >
                       <CheckCircle2 className="w-4 h-4 text-wheat-400" />
                       <span>{isTamil ? '🏆 இச்சுழற்சியை உறுதி செய்' : '🏆 Commit Plan'}</span>
