@@ -8,7 +8,7 @@ import { Sprout, Clock, Database, ShieldCheck, MapPin, LogOut } from 'lucide-rea
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { currentFieldId, fieldList, switchField, fieldToday } = useField();
+  const { currentFieldId, fieldList, switchField, fieldToday, profile } = useField();
   const { t, i18n } = useTranslation();
   const location = useLocation();
 
