@@ -20,15 +20,26 @@ router.get('/rotations', (req, res) => {
         : req.query.priorities.split(',');
     }
 
+    const duration = req.query.duration || '3_year';
+    let previousCrops = [];
+    if (req.query.previousCrops) {
+      previousCrops = Array.isArray(req.query.previousCrops)
+        ? req.query.previousCrops
+        : req.query.previousCrops.split(',');
+    }
+
     const rotations = rotationEngine.generateRotations({
       fieldId,
       priorities,
-      currentCrop: req.query.currentCrop || 'corn'
+      currentCrop: req.query.currentCrop || 'corn',
+      duration,
+      previousCrops
     });
 
     return res.json({
       fieldId,
       priorities,
+      duration,
       rotations
     });
   } catch (err) {

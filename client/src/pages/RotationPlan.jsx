@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useField } from '../context/FieldContext';
 import { rotationAPI, seasonAPI } from '../services/api';
+import AllStrategiesGameAnalysis from '../components/simulation/AllStrategiesGameAnalysis';
+import { CropSequenceVisualizer } from '../components/common/CropVisualCard';
 import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle, Maximize2, Trophy } from 'lucide-react';
 
 export default function RotationPlan() {
@@ -23,6 +25,7 @@ export default function RotationPlan() {
   const [plantingDelay, setPlantingDelay] = useState(0);
   const [whatIfResult, setWhatIfResult] = useState(null);
   const [simulating, setSimulating] = useState(false);
+  const [showAllAnalysis, setShowAllAnalysis] = useState(false);
   const [committedMsg, setCommittedMsg] = useState(null);
 
   const fetchRotations = async () => {
@@ -207,27 +210,32 @@ export default function RotationPlan() {
                 {rot.description}
               </p>
 
+              {/* DISTINCT BOTANICAL CROP PICTURES (Visual illustrated cards for every crop) */}
+              <div className="bg-cream-100/80 rounded-2xl p-2.5 mt-2 border border-soil-200">
+                <CropSequenceVisualizer sequence={rot.sequence} isTamil={isTamil} />
+              </div>
+
               {/* 5-Factor Score Pills */}
               <div className="grid grid-cols-5 gap-1.5 mt-3 pt-3 border-t border-soil-200 text-center">
-                <div className="bg-cream-200 p-1.5 rounded-xl">
-                  <div className="text-[10px] text-soil-600">Yield</div>
-                  <div className="text-xs font-bold text-soil-900">{rot.scores.yield}</div>
+                <div className="bg-cream-200/90 p-1.5 rounded-xl border border-soil-300/40">
+                  <div className="text-[10px] font-bold text-soil-600">Yield</div>
+                  <div className="text-xs font-extrabold text-soil-900">{rot.scores.yield}</div>
                 </div>
-                <div className="bg-cream-200 p-1.5 rounded-xl">
-                  <div className="text-[10px] text-soil-600">Water</div>
-                  <div className="text-xs font-bold text-soil-900">{rot.scores.water}</div>
+                <div className="bg-cyan-50 p-1.5 rounded-xl border border-cyan-200">
+                  <div className="text-[10px] font-bold text-cyan-700">Water</div>
+                  <div className="text-xs font-extrabold text-cyan-800">{rot.scores.water}</div>
                 </div>
-                <div className="bg-cream-200 p-1.5 rounded-xl">
-                  <div className="text-[10px] text-soil-600">Soil</div>
-                  <div className="text-xs font-bold text-soil-900">{rot.scores.soil}</div>
+                <div className="bg-emerald-50 p-1.5 rounded-xl border border-emerald-200">
+                  <div className="text-[10px] font-bold text-emerald-700">Soil</div>
+                  <div className="text-xs font-extrabold text-emerald-800">{rot.scores.soil}</div>
                 </div>
-                <div className="bg-cream-200 p-1.5 rounded-xl">
-                  <div className="text-[10px] text-soil-600">Income</div>
-                  <div className="text-xs font-bold text-soil-900">{rot.scores.income}</div>
+                <div className="bg-amber-50 p-1.5 rounded-xl border border-amber-200">
+                  <div className="text-[10px] font-bold text-amber-700">Income</div>
+                  <div className="text-xs font-extrabold text-amber-800">{rot.scores.income}</div>
                 </div>
-                <div className="bg-cream-200 p-1.5 rounded-xl">
-                  <div className="text-[10px] text-soil-600">Risk</div>
-                  <div className="text-xs font-bold text-soil-900">{rot.scores.risk}</div>
+                <div className="bg-rose-50 p-1.5 rounded-xl border border-rose-200">
+                  <div className="text-[10px] font-bold text-rose-700">Risk</div>
+                  <div className="text-xs font-extrabold text-rose-800">{rot.scores.risk}</div>
                 </div>
               </div>
 
@@ -273,6 +281,24 @@ export default function RotationPlan() {
             </div>
           );
         })}
+      </div>
+
+      {/* MASTER ANALYZE ALL STRATEGIES IN GAME MODE BUTTON */}
+      <div className="pt-2 pb-2 text-center">
+        <button
+          type="button"
+          onClick={() => setShowAllAnalysis(true)}
+          className="w-full py-4 px-6 rounded-3xl bg-gradient-to-r from-amber-500 via-amber-600 to-emerald-600 hover:from-amber-400 hover:via-amber-500 hover:to-emerald-500 text-stone-950 font-display font-extrabold text-sm sm:text-base shadow-tactile-hover flex items-center justify-center gap-3 active:scale-98 transition transform ring-4 ring-amber-400/40 animate-pulse"
+        >
+          <Sliders className="w-5 h-5 text-stone-950" />
+          <span>{isTamil ? '⚡ அனைத்து உத்திகளையும் ஒப்பிட்டு ஆராய் (ANALYZE ALL IN GAME MODE)' : '⚡ ANALYZE ALL STRATEGIES IN GAME MODE'}</span>
+          <Trophy className="w-5 h-5 text-stone-950" />
+        </button>
+        <p className="text-[11px] text-soil-600 mt-1.5 font-medium">
+          {isTamil 
+            ? 'அனைத்து 5 உத்திகளையும் ஒரே முழுத்திரையில் வைத்து, காலநிலை மாற்றங்களை விளையாட்டாக சோதிக்கலாம்' 
+            : 'Compare all 5 strategies on one full screen with real-time What-If climate simulation sliders'}
+        </p>
       </div>
 
       {/* Selected Rotation Deep-Dive Section */}
@@ -514,6 +540,17 @@ export default function RotationPlan() {
             </div>
           )}
         </div>
+      )}
+
+      {/* FULL SCREEN ALL STRATEGIES GAME MODE ANALYSIS MODAL */}
+      {showAllAnalysis && (
+        <AllStrategiesGameAnalysis
+          isOpen={true}
+          onClose={() => setShowAllAnalysis(false)}
+          strategies={rotations}
+          onCommitStrategy={handleCommitSeason}
+          fieldLocation={{ name: profile?.name || 'தஞ்சாவூர்' }}
+        />
       )}
     </div>
   );

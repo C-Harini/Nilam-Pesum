@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { profileAPI, rotationAPI, seasonAPI } from '../services/api';
 import FieldMap from '../components/map/FieldMap';
 import FarmGameSimulation from '../components/simulation/FarmGameSimulation';
+import AllStrategiesGameAnalysis from '../components/simulation/AllStrategiesGameAnalysis';
+import { CropSequenceVisualizer } from '../components/common/CropVisualCard';
 import { 
   Mic, MicOff, Check, Edit2, Volume2, Shield, DollarSign, 
   Droplets, AlertTriangle, ArrowRight, ArrowLeft, MapPin, 
@@ -101,6 +103,7 @@ export default function VoiceOnboarding() {
   const [strategies, setStrategies] = useState([]);
   const [loadingStrategies, setLoadingStrategies] = useState(false);
   const [activeGameStrategyId, setActiveGameStrategyId] = useState(null);
+  const [showAllStrategiesAnalysis, setShowAllStrategiesAnalysis] = useState(false);
   const [committedMsg, setCommittedMsg] = useState(null);
 
   // Proactive Voice Prompt on step change
@@ -255,7 +258,9 @@ export default function VoiceOnboarding() {
       const res = await rotationAPI.getRotations({
         fieldId: currentFieldId || 'field_tn01',
         priorities: rankedPriorities.map(p => p.id).join(','),
-        currentCrop: selectedPreviousCrops[0] || 'paddy'
+        currentCrop: selectedPreviousCrops[0] || 'paddy',
+        duration: selectedDuration,
+        previousCrops: selectedPreviousCrops.join(',')
       });
       const list = res.data?.rotations || [];
       setStrategies(list);
@@ -956,7 +961,7 @@ export default function VoiceOnboarding() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold ${
-                        idx === 0 ? 'bg-amber-400 text-stone-950' : 'bg-soil-200 text-soil-800'
+                        idx === 0 ? 'bg-amber-400 text-stone-950 ring-2 ring-amber-300' : 'bg-soil-200 text-soil-800'
                       }`}>
                         #{idx + 1}
                       </span>
@@ -965,7 +970,7 @@ export default function VoiceOnboarding() {
                           {strat.name}
                         </h3>
                         <div className="text-[11px] font-bold text-field-700">
-                          {strat.sequence?.join(' ➔ ')}
+                          {strat.description}
                         </div>
                       </div>
                     </div>
@@ -978,31 +983,32 @@ export default function VoiceOnboarding() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-soil-600 leading-relaxed">
-                    {strat.description}
-                  </p>
+                  {/* DISTINCT BOTANICAL CROP PICTURES (Visual illustrated cards for every crop) */}
+                  <div className="bg-cream-100/80 rounded-2xl p-2.5 border border-soil-200">
+                    <CropSequenceVisualizer sequence={strat.sequence} isTamil={isTamil} />
+                  </div>
 
-                  {/* 5 Factor Breakdown Pills */}
-                  <div className="grid grid-cols-5 gap-1.5 text-center pt-2 border-t border-soil-200">
-                    <div className="bg-cream-200 p-1 rounded-xl">
-                      <div className="text-[9px] text-soil-600">Yield</div>
-                      <div className="text-xs font-bold text-soil-900">{strat.scores?.yield || 85}</div>
+                  {/* 5 Factor Breakdown Pills with Granular Differentiated Scores */}
+                  <div className="grid grid-cols-5 gap-1.5 text-center pt-1 border-t border-soil-200">
+                    <div className="bg-cream-200/90 p-1.5 rounded-xl border border-soil-300/40">
+                      <div className="text-[9px] font-bold text-soil-600">Yield</div>
+                      <div className="text-xs font-extrabold text-soil-900">{strat.scores?.yield || 85}</div>
                     </div>
-                    <div className="bg-cream-200 p-1 rounded-xl">
-                      <div className="text-[9px] text-soil-600">Water</div>
-                      <div className="text-xs font-bold text-cyan-700">{strat.scores?.water || 85}</div>
+                    <div className="bg-cyan-50 p-1.5 rounded-xl border border-cyan-200">
+                      <div className="text-[9px] font-bold text-cyan-700">Water</div>
+                      <div className="text-xs font-extrabold text-cyan-800">{strat.scores?.water || 85}</div>
                     </div>
-                    <div className="bg-cream-200 p-1 rounded-xl">
-                      <div className="text-[9px] text-soil-600">Soil</div>
-                      <div className="text-xs font-bold text-teal-700">{strat.scores?.soil || 85}</div>
+                    <div className="bg-emerald-50 p-1.5 rounded-xl border border-emerald-200">
+                      <div className="text-[9px] font-bold text-emerald-700">Soil</div>
+                      <div className="text-xs font-extrabold text-emerald-800">{strat.scores?.soil || 85}</div>
                     </div>
-                    <div className="bg-cream-200 p-1 rounded-xl">
-                      <div className="text-[9px] text-soil-600">Income</div>
-                      <div className="text-xs font-bold text-emerald-700">{strat.scores?.income || 85}</div>
+                    <div className="bg-amber-50 p-1.5 rounded-xl border border-amber-200">
+                      <div className="text-[9px] font-bold text-amber-700">Income</div>
+                      <div className="text-xs font-extrabold text-amber-800">{strat.scores?.income || 85}</div>
                     </div>
-                    <div className="bg-cream-200 p-1 rounded-xl">
-                      <div className="text-[9px] text-soil-600">Risk</div>
-                      <div className="text-xs font-bold text-amber-700">{strat.scores?.risk || 85}</div>
+                    <div className="bg-rose-50 p-1.5 rounded-xl border border-rose-200">
+                      <div className="text-[9px] font-bold text-rose-700">Risk</div>
+                      <div className="text-xs font-extrabold text-rose-800">{strat.scores?.risk || 85}</div>
                     </div>
                   </div>
 
@@ -1043,8 +1049,29 @@ export default function VoiceOnboarding() {
             </div>
           )}
 
+          {/* MASTER ANALYZE ALL STRATEGIES IN GAME MODE BUTTON (Requested by user) */}
+          <div className="pt-3 pb-2 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                playSound('chime');
+                setShowAllStrategiesAnalysis(true);
+              }}
+              className="w-full py-4 px-6 rounded-3xl bg-gradient-to-r from-amber-500 via-amber-600 to-emerald-600 hover:from-amber-400 hover:via-amber-500 hover:to-emerald-500 text-stone-950 font-display font-extrabold text-sm sm:text-base shadow-tactile-hover flex items-center justify-center gap-3 active:scale-98 transition transform ring-4 ring-amber-400/40 animate-pulse"
+            >
+              <Sliders className="w-5 h-5 text-stone-950" />
+              <span>{isTamil ? '⚡ அனைத்து உத்திகளையும் ஒப்பிட்டு ஆராய் (ANALYZE ALL IN GAME MODE)' : '⚡ ANALYZE ALL STRATEGIES IN GAME MODE'}</span>
+              <Trophy className="w-5 h-5 text-stone-950" />
+            </button>
+            <p className="text-[11px] text-soil-600 mt-1.5 font-medium">
+              {isTamil 
+                ? 'அனைத்து 5 உத்திகளையும் ஒரே முழுத்திரையில் வைத்து, காலநிலை மாற்றங்களை விளையாட்டாக சோதிக்கலாம்' 
+                : 'Compare all 5 strategies side-by-side on one full screen with real-time What-If climate simulation sliders'}
+            </p>
+          </div>
+
           {/* Continue to Field Dashboard Button */}
-          <div className="pt-3 text-center">
+          <div className="pt-2 text-center">
             <button
               onClick={() => navigate('/today')}
               className="px-6 py-3 rounded-2xl bg-soil-900 hover:bg-soil-800 text-cream-50 font-extrabold text-xs flex items-center justify-center gap-2 mx-auto active:scale-95 transition shadow-tactile"
@@ -1056,12 +1083,23 @@ export default function VoiceOnboarding() {
         </div>
       )}
 
-      {/* FULL SCREEN GAME SIMULATION MODAL (When Farmer taps Game Mode on any strategy) */}
+      {/* FULL SCREEN GAME SIMULATION MODAL (When Farmer taps Game Mode on any single strategy) */}
       {activeGameStrategyId && (
         <FarmGameSimulation
           isOpen={true}
           initialStrategyId={activeGameStrategyId}
           onClose={() => setActiveGameStrategyId(null)}
+        />
+      )}
+
+      {/* FULL SCREEN ALL STRATEGIES GAME MODE ANALYSIS MODAL (When Farmer taps ANALYZE at the end) */}
+      {showAllStrategiesAnalysis && (
+        <AllStrategiesGameAnalysis
+          isOpen={true}
+          onClose={() => setShowAllStrategiesAnalysis(false)}
+          strategies={strategies}
+          onCommitStrategy={handleCommitPlan}
+          fieldLocation={selectedLocation}
         />
       )}
     </div>
