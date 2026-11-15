@@ -180,7 +180,7 @@ export default function WelcomeLogin() {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-field-100 hover:bg-field-200 text-field-900 text-xs font-bold border border-field-300 shadow-sm active:scale-95 transition"
         >
           {isSpeaking ? <VolumeX className="w-4 h-4 text-field-700 animate-pulse" /> : <Volume2 className="w-4 h-4 text-field-700" />}
-          <span>{isTamil ? 'குரல் உதவி' : 'Voice Help'}</span>
+          <span>{isSpeaking ? (isTamil ? 'நிறுத்து' : 'Stop') : (isTamil ? '👨‍🌾 குரல் உதவி (ஆண் குரல்)' : '👨‍🌾 Voice Help (Male)')}</span>
         </button>
 
         {/* Two Modes: All Tamil | All English */}

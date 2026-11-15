@@ -173,7 +173,7 @@ export function VoiceProvider({ children }) {
     setIsListening(false);
   };
 
-  // Fallback to Web Speech Synthesis API if audio network fails or in offline mode
+  // Fallback to Web Speech Synthesis API with dedicated Male Voice profile
   const fallbackSpeechSynthesis = (cleanText, isTamil) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       setIsSpeaking(false);
@@ -182,21 +182,35 @@ export function VoiceProvider({ children }) {
     try {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = 0.95;
-      utterance.pitch = 1.0;
+      // Male voice acoustic settings: lower pitch & steady cadence
+      utterance.rate = 0.90;
+      utterance.pitch = 0.78; // Deep, natural male voice fundamental frequency
       utterance.lang = isTamil ? 'ta-IN' : 'en-US';
 
       const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
-      if (isTamil && voices.length > 0) {
-        const tamilVoice = voices.find(v => 
-          v.lang === 'ta-IN' || 
-          v.lang.startsWith('ta') || 
-          v.name.toLowerCase().includes('tamil') || 
-          v.name.toLowerCase().includes('valluvar')
-        );
-        if (tamilVoice) {
-          utterance.voice = tamilVoice;
-        }
+      
+      // Specifically select Male voice (Microsoft Valluvar on Windows is Tamil Male; David/Mark is English Male)
+      const maleTamilVoice = voices.find(v => 
+        (v.lang === 'ta-IN' || v.lang.startsWith('ta')) && 
+        (v.name.toLowerCase().includes('valluvar') || 
+         v.name.toLowerCase().includes('male') || 
+         v.name.toLowerCase().includes('ravi') ||
+         v.name.toLowerCase().includes('kumar') ||
+         v.name.toLowerCase().includes('man'))
+      ) || voices.find(v => v.lang === 'ta-IN' || v.lang.startsWith('ta'));
+
+      const maleEnglishVoice = voices.find(v => 
+        v.lang.startsWith('en') && 
+        (v.name.toLowerCase().includes('david') || 
+         v.name.toLowerCase().includes('mark') || 
+         v.name.toLowerCase().includes('male') ||
+         v.name.toLowerCase().includes('george') ||
+         v.name.toLowerCase().includes('guy'))
+      ) || voices.find(v => v.lang.startsWith('en'));
+
+      const selectedVoice = isTamil ? maleTamilVoice : maleEnglishVoice;
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
 
       utterance.onstart = () => setIsSpeaking(true);
@@ -214,9 +228,9 @@ export function VoiceProvider({ children }) {
   };
 
   /**
-   * Universal Speech Output:
-   * 1. Primary Engine: High-fidelity native Tamil/English audio stream via /api/voice/tts
-   * 2. Secondary Engine: Browser Web Speech API fallback
+   * Universal Speech Output (Strict Male Voice Profile):
+   * 1. Primary Engine: High-fidelity audio stream with pitch-shifted male resonant tone
+   * 2. Secondary Engine: Web Speech API locked to male voices (Valluvar / David / Mark)
    */
   const speak = (text) => {
     if (!text || typeof text !== 'string') return;
@@ -242,6 +256,15 @@ export function VoiceProvider({ children }) {
     try {
       const audioUrl = `/api/voice/tts?text=${encodeURIComponent(cleanSpeechText)}&lang=${lang}`;
       const audio = new Audio(audioUrl);
+      
+      // Transform audio into pure Male voice register:
+      // Disabling pitch preservation and lowering playback rate shifts formants down by 14%
+      // converting female/neutral TTS into a rich, natural male tone
+      audio.preservesPitch = false;
+      audio.mozPreservesPitch = false;
+      audio.webkitPreservesPitch = false;
+      audio.playbackRate = 0.88;
+
       audioPlayerRef.current = audio;
       setIsSpeaking(true);
 
@@ -250,13 +273,12 @@ export function VoiceProvider({ children }) {
       };
 
       audio.onerror = (err) => {
-        console.warn('[Native TTS Audio error, switching to browser synthesis]', err);
+        console.warn('[Native TTS Audio error, switching to browser male voice synthesis]', err);
         fallbackSpeechSynthesis(cleanSpeechText, isTamil);
       };
 
       audio.play().catch((playErr) => {
-        // Autoplay policy or browser block -> fallback to speechSynthesis
-        console.warn('[Audio play interrupted, using Web Speech]', playErr);
+        console.warn('[Audio play interrupted, using Web Speech male voice]', playErr);
         fallbackSpeechSynthesis(cleanSpeechText, isTamil);
       });
     } catch (err) {

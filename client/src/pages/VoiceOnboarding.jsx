@@ -461,7 +461,7 @@ export default function VoiceOnboarding() {
             title="குரல் வழி விளக்கம் / Listen to Step Instructions"
           >
             {isSpeaking ? <VolumeX className="w-4 h-4 text-amber-800 animate-pulse" /> : <Volume2 className="w-4 h-4 text-amber-800" />}
-            <span>{isSpeaking ? (isTamil ? 'நிறுத்து' : 'Stop') : (isTamil ? '🔊 தமிழில் கேட்க' : '🔊 Listen')}</span>
+            <span>{isSpeaking ? (isTamil ? 'நிறுத்து' : 'Stop') : (isTamil ? '👨‍🌾 ஆண் குரலில் கேட்க' : '👨‍🌾 Male Voice')}</span>
           </button>
         </div>
       </div>
