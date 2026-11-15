@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useField } from '../context/FieldContext';
 import { useVoice } from '../context/VoiceContext';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +9,8 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianG
 import { Droplets, Thermometer, Sprout, ShieldAlert, Volume2, Info, ArrowUpRight, ArrowDownRight, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function FieldToday() {
-  const { fieldToday, loading, error, refreshFieldData } = useField();
+  const { fieldToday, profile, loading, error, refreshFieldData } = useField();
+  const { user } = useAuth();
   const { speak, isSpeaking, stopSpeaking } = useVoice();
   const { t, i18n } = useTranslation();
   const [activePassport, setActivePassport] = useState(null);
@@ -90,6 +92,60 @@ export default function FieldToday() {
           <Volume2 className="w-4 h-4 text-field-700" />
           <span>{isSpeaking ? t('today.pause_audio') : t('today.read_aloud')}</span>
         </button>
+      </div>
+
+      {/* Particular Farmer's Personalized Land Overview Banner */}
+      <div className="bg-gradient-to-r from-stone-900 to-field-950 text-cream-50 rounded-3xl p-4 sm:p-5 border-2 border-field-600/50 shadow-tactile space-y-3 animate-in fade-in">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-field-600/40 border border-field-400 flex items-center justify-center text-wheat-400 font-extrabold text-xl flex-shrink-0 shadow-sm">
+              🌾
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  {isTamil ? 'உறுதிசெய்யப்பட்ட விவசாயி சுயவிவரம்' : 'Verified Farmer Profile'}
+                </span>
+              </div>
+              <h2 className="font-display font-extrabold text-base sm:text-lg text-cream-100 mt-0.5">
+                {profile?.name || (user?.name ? `${user.name} பண்ணை` : fieldName)}
+              </h2>
+              <div className="text-xs text-soil-300 flex items-center gap-1.5 mt-0.5">
+                <span>👤 {user?.name || profile?.farmerName || (isTamil ? 'விவசாயி' : 'Farmer')}</span>
+                <span>•</span>
+                <span>📍 {profile?.location?.name || profile?.county || (isTamil ? 'தஞ்சாவூர், தமிழ்நாடு' : 'Thanjavur, TN')}</span>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            to="/plan"
+            className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold shadow-sm active:scale-95 transition flex items-center gap-1 flex-shrink-0"
+          >
+            <span>{isTamil ? 'பயிர் திட்டம்' : 'View Plan'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* 4 Key Farmer Details Badges */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-soil-800 text-xs">
+          <div className="bg-stone-900/80 p-2.5 rounded-xl border border-stone-800">
+            <div className="text-[10px] text-soil-400">{isTamil ? 'நிலப்பரப்பு' : 'Land Area'}</div>
+            <div className="font-extrabold text-amber-300">{profile?.areaAcres || 5} {isTamil ? 'ஏக்கர்' : 'Acres'}</div>
+          </div>
+          <div className="bg-stone-900/80 p-2.5 rounded-xl border border-stone-800">
+            <div className="text-[10px] text-soil-400">{isTamil ? 'மண் வகை' : 'Soil Texture'}</div>
+            <div className="font-extrabold text-cream-200 truncate">{profile?.soil?.texture?.split('(')[0] || (isTamil ? 'வண்டல் மண்' : 'Clay Loam')}</div>
+          </div>
+          <div className="bg-stone-900/80 p-2.5 rounded-xl border border-stone-800">
+            <div className="text-[10px] text-soil-400">{isTamil ? 'பாசன முறை' : 'Water Source'}</div>
+            <div className="font-extrabold text-cyan-300 capitalize">{profile?.waterSource === 'irrigated' ? (isTamil ? 'பாசனம்' : 'Irrigated') : (isTamil ? 'மானாவாரி' : 'Rainfed')}</div>
+          </div>
+          <div className="bg-stone-900/80 p-2.5 rounded-xl border border-stone-800">
+            <div className="text-[10px] text-soil-400">{isTamil ? 'முந்தைய பயிர்' : 'Previous Crop'}</div>
+            <div className="font-extrabold text-emerald-300 capitalize">{profile?.currentCrop || (isTamil ? 'சம்பா நெல்' : 'Paddy')}</div>
+          </div>
+        </div>
       </div>
 
       {/* Field Health Status Banner */}

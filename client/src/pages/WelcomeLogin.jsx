@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useField } from '../context/FieldContext';
 import { useVoice } from '../context/VoiceContext';
 import { useTranslation } from 'react-i18next';
+import LanguageModeToggle from '../components/common/LanguageModeToggle';
 import { 
   Sprout, Mail, Lock, User, Phone, Sparkles, Volume2, 
-  VolumeX, Eye, EyeOff, ArrowRight, Globe, CheckCircle2, Shield
+  VolumeX, Eye, EyeOff, ArrowRight, CheckCircle2, Shield
 } from 'lucide-react';
 
 export default function WelcomeLogin() {
@@ -15,29 +17,40 @@ export default function WelcomeLogin() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [savedEmail, setSavedEmail] = useState('');
+  const [savedName, setSavedName] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const { login, register, demoLogin } = useAuth();
+  const { refreshProfile } = useField();
   const { speak, isSpeaking, stopSpeaking } = useVoice();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const isTamil = i18n.language === 'ta';
 
+  // Load remembered login information on mount
+  useEffect(() => {
+    const remEmail = localStorage.getItem('nilam_pesum_remembered_email') || localStorage.getItem('nilam_pesum_last_email') || '';
+    const remName = localStorage.getItem('nilam_pesum_remembered_name') || '';
+    if (remEmail) {
+      setSavedEmail(remEmail);
+      setEmail(remEmail);
+    }
+    if (remName) {
+      setSavedName(remName);
+    }
+  }, []);
+
   // Proactive Voice Welcome on mount
   useEffect(() => {
     const welcomeSpeech = isTamil
-      ? "வணக்கம்! நிலம் பேசும் விவசாய ஆலோசனை தளத்திற்கு நல்வரவு. உள்நுழைய உங்கள் மின்னஞ்சல் மற்றும் கடவுச்சொல்லை உள்ளிடவும், அல்லது புதிய கணக்கு தொடங்கவும்."
+      ? "வணக்கம்! நிலம் பேசும் விவசாய ஆலோசனை தளத்திற்கு நல்வரவு. உள்நுழைய உங்கள் மின்னஞ்சல் மற்றும் கடவுச்சொல்லை உள்ளிடவும்."
       : "Welcome to Nilam Pesum. Please enter your email and password to sign in or create a new farmer account.";
     speak(welcomeSpeech);
   }, [isTamil]);
-
-  const toggleLanguage = () => {
-    const nextLang = isTamil ? 'en' : 'ta';
-    i18n.changeLanguage(nextLang);
-    localStorage.setItem('nilam_pesum_lang', nextLang);
-  };
 
   const handleSpeakInstructions = () => {
     if (isSpeaking) {
@@ -46,11 +59,11 @@ export default function WelcomeLogin() {
     }
     const text = isRegistering
       ? (isTamil 
-          ? "புதிய கணக்கு துவங்க: உங்கள் பெயர், மின்னஞ்சல் முகவரி மற்றும் கடவுச்சொல்லை உள்ளிட்டு 'கணக்கு உருவாக்கு' பட்டனை அழுத்தவும். தொடர்ந்து குரல் வழியில் உங்கள் நில விவரங்கள் கேட்கப்படும்."
-          : "To create an account: enter your name, email, and password. Next, voice onboarding will guide you through your farm setup.")
+          ? "புதிய கணக்கு துவங்க: உங்கள் பெயர், மின்னஞ்சல் முகவரி மற்றும் கடவுச்சொல்லை உள்ளிட்டு கணக்கு உருவாக்கு பொத்தானை அழுத்தவும். முதல் முறை மட்டுமே நில விவரங்கள் கேட்கப்படும்."
+          : "To create an account: enter your name, email, and password. Land details will only be requested once during initial registration.")
       : (isTamil 
-          ? "உள்நுழைய: பதிவு செய்யப்பட்ட மின்னஞ்சல் மற்றும் கடவுச்சொல்லை உள்ளிடவும். அல்லது கீழே உள்ள மாதிரி பண்ணை பொத்தானை அழுத்தி உடனடியாக சோதிக்கலாம்."
-          : "To sign in: enter your registered email and password. Or click the demo button below to test instantly.");
+          ? "உள்நுழைய: பதிவு செய்யப்பட்ட மின்னஞ்சல் மற்றும் கடவுச்சொல்லை உள்ளிடவும். உள்நுழைந்தவுடன் உங்கள் நில விவரங்கள் நேரடியாகக் காட்டப்படும்."
+          : "To sign in: enter your registered email and password. Your personal farm details will load directly without asking for land setup again.");
     speak(text);
   };
 
@@ -59,6 +72,7 @@ export default function WelcomeLogin() {
       setLoading(true);
       setError(null);
       const { greeting } = await demoLogin();
+      await refreshProfile();
       speak(greeting || (isTamil
         ? "வணக்கம்! தஞ்சாவூர் காவிரி டெல்டா வயல் நாசா நேரடித் தரவுகளுடன் தயாராக உள்ளது."
         : "Welcome! Your Thanjavur Cauvery Delta Farm is loaded with authentic NASA data."));
@@ -89,6 +103,8 @@ export default function WelcomeLogin() {
     try {
       setLoading(true);
       setError(null);
+      const cleanEmail = email.trim().toLowerCase();
+
       if (isRegistering) {
         const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
         const effectivePhone = cleanPhone && cleanPhone.length >= 10 
@@ -98,31 +114,55 @@ export default function WelcomeLogin() {
 
         const { greeting } = await register({
           name: name || (isTamil ? 'விவசாயி' : 'Farmer'),
-          email: email.trim().toLowerCase(),
+          email: cleanEmail,
           password,
-          pin: numericPin, // Dual compatibility with both new email auth and legacy PIN endpoints
+          pin: numericPin,
           phone: effectivePhone
         });
+
+        // Save remembered login credentials
+        if (rememberMe) {
+          localStorage.setItem('nilam_pesum_remembered_email', cleanEmail);
+          localStorage.setItem('nilam_pesum_remembered_name', name || (isTamil ? 'விவசாயி' : 'Farmer'));
+        }
         
         speak(greeting || (isTamil
-          ? "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது! இப்போது உங்கள் நில விவரங்களை பதிவு செய்வோம்."
+          ? "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது! இப்போது உங்கள் நில விவரங்களை ஒருமுறை பதிவு செய்வோம்."
           : "Account created successfully! Let's set up your farm details."));
-        // First-time registering goes straight to Voice Guided Onboarding
+        // ONLY first time registering asks for land details
         navigate('/onboarding');
       } else {
-        const cleanEmail = email.trim().toLowerCase();
-        const { greeting } = await login({
+        const { greeting, user: loggedUser } = await login({
           identifier: cleanEmail,
           email: cleanEmail,
           phone: cleanEmail.replace(/\D/g, '') || cleanEmail,
           password,
-          pin: password // Send both password and pin
+          pin: password
         });
-        
-        speak(greeting || (isTamil
-          ? "வணக்கம்! வெற்றிகரமாக உள்நுழைந்துள்ளீர்கள். உங்கள் பண்ணை விவரங்கள் தயாராக உள்ளன."
-          : "Signed in successfully. Your farm details are ready."));
-        navigate('/today');
+
+        // Save remembered login credentials
+        if (rememberMe) {
+          localStorage.setItem('nilam_pesum_remembered_email', cleanEmail);
+          if (loggedUser?.name) {
+            localStorage.setItem('nilam_pesum_remembered_name', loggedUser.name);
+          }
+        }
+
+        // Fetch this particular person's saved field profile from backend
+        const userProfile = await refreshProfile();
+
+        // If user already has land details, NEVER ask for land details again! Go straight to today's dashboard!
+        const hasLandData = userProfile && (userProfile.areaAcres || userProfile.location || userProfile.soil);
+
+        if (hasLandData) {
+          speak(greeting || (isTamil
+            ? `வணக்கம் ${loggedUser?.name || 'விவசாயி'}! உங்கள் பண்ணைத் தரவுகள் தயாராக உள்ளன.`
+            : `Welcome back, ${loggedUser?.name || 'Farmer'}! Your farm details are ready.`));
+          navigate('/today');
+        } else {
+          // Only if this user never entered land details
+          navigate('/onboarding');
+        }
       }
     } catch (err) {
       setError(err.response?.data?.error || err.message);
@@ -133,7 +173,7 @@ export default function WelcomeLogin() {
 
   return (
     <div className="min-h-screen bg-cream-100 flex flex-col justify-center px-4 py-8">
-      {/* Top Bar: Language & Voice Assistant */}
+      {/* Top Bar: Two Modes (All Tamil | All English) & Voice Assistant */}
       <div className="max-w-md w-full mx-auto flex items-center justify-between mb-4">
         <button
           onClick={handleSpeakInstructions}
@@ -143,13 +183,8 @@ export default function WelcomeLogin() {
           <span>{isTamil ? 'குரல் உதவி' : 'Voice Help'}</span>
         </button>
 
-        <button
-          onClick={toggleLanguage}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-wheat-100 hover:bg-wheat-200 text-soil-900 text-xs font-bold border border-wheat-400 shadow-sm active:scale-95 transition"
-        >
-          <Globe className="w-4 h-4 text-wheat-700" />
-          <span>{isTamil ? 'தமிழ் (Tamil)' : 'English'}</span>
-        </button>
+        {/* Two Modes: All Tamil | All English */}
+        <LanguageModeToggle />
       </div>
 
       <div className="max-w-md w-full mx-auto">
@@ -226,6 +261,30 @@ export default function WelcomeLogin() {
           {error && (
             <div className="bg-red-50 border border-red-300 text-red-800 text-xs rounded-xl p-3 mb-4 font-medium animate-in fade-in">
               {error}
+            </div>
+          )}
+
+          {/* Saved / Remembered Login Account Chip (if previously logged in) */}
+          {!isRegistering && savedEmail && (
+            <div className="mb-4 p-3 rounded-2xl bg-field-50/90 border border-field-300 flex items-center justify-between gap-2 shadow-sm animate-in fade-in">
+              <div className="truncate text-left">
+                <span className="text-[10px] font-bold text-field-700 uppercase tracking-wider block">
+                  {isTamil ? '👤 நினைவில் உள்ள விவசாயி கணக்கு:' : '👤 Saved Farmer Account:'}
+                </span>
+                <span className="text-xs font-extrabold text-soil-900 truncate block">
+                  {savedName || (isTamil ? 'விவசாயி' : 'Farmer')} • <span className="font-mono text-field-800">{savedEmail}</span>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail(savedEmail);
+                  playSound('chime');
+                }}
+                className="px-2.5 py-1.5 bg-field-600 hover:bg-field-700 text-white rounded-xl text-xs font-bold active:scale-95 transition shadow-sm flex-shrink-0"
+              >
+                {isTamil ? 'தானாக நிரப்பு' : 'Autofill'}
+              </button>
             </div>
           )}
 
@@ -311,6 +370,21 @@ export default function WelcomeLogin() {
                 </div>
               </div>
             )}
+
+            {/* Remember Me Checkbox */}
+            <div className="pt-1">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-soil-700 select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded text-field-600 focus:ring-field-500 accent-field-600"
+                />
+                <span className="font-semibold">
+                  {isTamil ? 'எனது விவரங்களை நினைவில் கொள் (Remember my login)' : 'Remember my login on this device'}
+                </span>
+              </label>
+            </div>
 
             <button
               type="submit"

@@ -9,6 +9,7 @@ import FieldMap from '../components/map/FieldMap';
 import FarmGameSimulation from '../components/simulation/FarmGameSimulation';
 import AllStrategiesGameAnalysis from '../components/simulation/AllStrategiesGameAnalysis';
 import { CropSequenceVisualizer } from '../components/common/CropVisualCard';
+import LanguageModeToggle from '../components/common/LanguageModeToggle';
 import { 
   Mic, MicOff, Check, Edit2, Volume2, Shield, DollarSign, 
   Droplets, AlertTriangle, ArrowRight, ArrowLeft, MapPin, 
@@ -18,7 +19,7 @@ import {
 
 export default function VoiceOnboarding() {
   const { isListening, transcript, startListening, stopListening, speak, stopSpeaking, playSound } = useVoice();
-  const { fieldList, switchField, currentFieldId } = useField();
+  const { fieldList, switchField, currentFieldId, profile } = useField();
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function VoiceOnboarding() {
   // Step 5: 'select_duration' -> Select Crop Rotation Duration (1, 2, 3 Years)
   // Step 6: 'strategies_list' -> View Evaluated Strategies & Play Game Mode
   const [currentStep, setCurrentStep] = useState(1);
+  const [hasExistingProfile, setHasExistingProfile] = useState(false);
 
   // Form Fields
   const [farmerName, setFarmerName] = useState(user?.name || '');
@@ -48,6 +50,31 @@ export default function VoiceOnboarding() {
     district: 'Thanjavur', 
     zone: 'காவிரி டெல்டா (Cauvery Delta)' 
   });
+
+  // Pre-load saved farmer profile if user already entered land details previously
+  useEffect(() => {
+    if (profile && (profile.areaAcres || profile.location)) {
+      setHasExistingProfile(true);
+      if (profile.name || profile.farmerName) {
+        setFarmerName(profile.farmerName || profile.name.replace(' பண்ணை', ''));
+      }
+      if (profile.areaAcres) setAcres(profile.areaAcres);
+      if (profile.soil?.texture) setSoilTexture(profile.soil.texture);
+      if (profile.waterSource) setWaterSource(profile.waterSource);
+      if (profile.location?.lat) {
+        setSelectedLocation({
+          lat: profile.location.lat,
+          lng: profile.location.lng,
+          name: profile.location.name || profile.county || 'தஞ்சாவூர் (Thanjavur)',
+          district: profile.location.district || 'Thanjavur',
+          zone: profile.location.zone || 'காவிரி டெல்டா (Cauvery Delta)'
+        });
+      }
+      if (profile.previousCrops && profile.previousCrops.length > 0) {
+        setSelectedPreviousCrops(profile.previousCrops);
+      }
+    }
+  }, [profile]);
 
   // Multi-select for previously grown crops before rotation
   const [selectedPreviousCrops, setSelectedPreviousCrops] = useState(['paddy']);
@@ -300,21 +327,25 @@ export default function VoiceOnboarding() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 pb-28 space-y-6 animate-in fade-in">
-      {/* Top Header Progress Bar */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs font-bold text-soil-700">
-          <span className="flex items-center gap-1.5 text-field-700">
+      {/* Top Header: Two Modes (All Tamil | All English) & Progress Bar */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-field-800 text-xs font-extrabold">
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span>{isTamil ? 'படிநிலை' : 'Step'} {currentStep} / 6</span>
-          </span>
-          <span className="font-mono text-soil-600">
-            {currentStep === 1 && (isTamil ? 'பண்ணை & நில விவரங்கள்' : 'Farm & Land Details')}
-            {currentStep === 2 && (isTamil ? 'நிலத்தின் இருப்பிடம் (குறியிடு)' : 'Point Location on Map')}
-            {currentStep === 3 && (isTamil ? 'முந்தைய பயிர்கள் & வரிசைப்படுத்தப்பட்ட இலக்குகள்' : 'Previous Crops & Ranked Priorities')}
-            {currentStep === 4 && (isTamil ? 'நாசா தரவுகள் பெறுதல்' : 'NASA Data Ingestion')}
-            {currentStep === 5 && (isTamil ? 'சுழற்சி காலம் தேர்வு' : 'Rotation Duration')}
-            {currentStep === 6 && (isTamil ? 'பயிர் சுழற்சி உத்திகள்' : 'Rotation Strategies')}
-          </span>
+            <span className="text-soil-400">•</span>
+            <span className="font-mono text-soil-700">
+              {currentStep === 1 && (isTamil ? 'பண்ணை & நில விவரங்கள்' : 'Farm & Land Details')}
+              {currentStep === 2 && (isTamil ? 'நிலத்தின் இருப்பிடம்' : 'Point Location on Map')}
+              {currentStep === 3 && (isTamil ? 'முந்தைய பயிர்கள் & இலக்குகள்' : 'Previous Crops & Goals')}
+              {currentStep === 4 && (isTamil ? 'நாசா தரவுகள்' : 'NASA Data')}
+              {currentStep === 5 && (isTamil ? 'சுழற்சி காலம்' : 'Duration')}
+              {currentStep === 6 && (isTamil ? 'பயிர் உத்திகள்' : 'Strategies')}
+            </span>
+          </div>
+
+          {/* Two Modes Selector */}
+          <LanguageModeToggle variant="compact" />
         </div>
 
         <div className="w-full bg-cream-200 h-2 rounded-full overflow-hidden border border-soil-300">
@@ -324,6 +355,41 @@ export default function VoiceOnboarding() {
           />
         </div>
       </div>
+
+      {/* If this user already has saved land data from registration, show quick access banner */}
+      {hasExistingProfile && currentStep === 1 && (
+        <div className="bg-gradient-to-r from-emerald-50 via-field-50 to-cream-50 border-2 border-field-500 rounded-3xl p-4 shadow-tactile flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-field-600 text-wheat-300 font-extrabold flex items-center justify-center flex-shrink-0 shadow-sm text-lg">
+              ✓
+            </div>
+            <div>
+              <div className="text-xs font-extrabold text-field-900">
+                {isTamil ? `வணக்கம் ${farmerName || user?.name || 'விவசாயி'}! உங்கள் நில விவரங்கள் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளன.` : `Welcome ${farmerName || user?.name || 'Farmer'}! Your farm details are already saved.`}
+              </div>
+              <div className="text-[11px] text-soil-700 font-medium mt-0.5">
+                {acres} {isTamil ? 'ஏக்கர்' : 'acres'} • {soilTexture.split('(')[0]} • {selectedLocation.name}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => navigate('/today')}
+              className="px-3.5 py-2 rounded-xl bg-field-700 hover:bg-field-800 text-cream-50 font-bold text-xs shadow-sm active:scale-95 transition flex-1 sm:flex-initial"
+            >
+              {isTamil ? 'பண்ணை முகப்புக்குச் செல் ➔' : 'Go to Farm Today ➔'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentStep(6)}
+              className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-xs shadow-sm active:scale-95 transition flex-1 sm:flex-initial"
+            >
+              {isTamil ? 'பயிர் உத்திகள்' : 'Strategies'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Voice Mic Trigger Bar (Always available) */}
       <div className="bg-cream-50 border-2 border-field-600/30 rounded-3xl p-3.5 shadow-tactile flex items-center justify-between gap-3">

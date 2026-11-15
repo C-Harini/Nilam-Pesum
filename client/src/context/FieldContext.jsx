@@ -34,12 +34,16 @@ export function FieldProvider({ children }) {
   const fetchProfile = async () => {
     try {
       const res = await profileAPI.getProfile();
-      setProfile(res.data);
-      if (res.data.fieldId) {
-        setCurrentFieldId(res.data.fieldId);
+      if (res.data) {
+        setProfile(res.data);
+        if (res.data.fieldId) {
+          setCurrentFieldId(res.data.fieldId);
+        }
+        return res.data;
       }
     } catch (e) {
       // Unauthenticated or profile missing
+      return null;
     }
   };
 
@@ -63,6 +67,7 @@ export function FieldProvider({ children }) {
       error,
       switchField,
       refreshFieldData: () => fetchFieldData(currentFieldId),
+      refreshProfile: fetchProfile,
       setProfile
     }}>
       {children}

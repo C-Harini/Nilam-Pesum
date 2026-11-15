@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useField } from '../../context/FieldContext';
 import { useTranslation } from 'react-i18next';
-import { Sprout, Clock, Database, ShieldCheck, MapPin, LogOut, Globe } from 'lucide-react';
+import LanguageModeToggle from './LanguageModeToggle';
+import { Sprout, Clock, Database, ShieldCheck, MapPin, LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -69,15 +70,8 @@ export default function Navbar() {
             <span className="hidden sm:inline">{i18n.language === 'ta' ? 'விளையாட்டு' : 'Game Sim'}</span>
           </Link>
 
-          {/* Language Switcher Pill */}
-          <button
-            onClick={toggleLanguage}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-wheat-100 hover:bg-wheat-200 text-soil-900 text-xs font-bold border border-wheat-400 shadow-sm active:scale-95 transition"
-            title="Switch Language / மொழி மாற்றம்"
-          >
-            <Globe className="w-3.5 h-3.5 text-wheat-700" />
-            <span>{i18n.language === 'ta' ? 'தமிழ்' : 'English'}</span>
-          </button>
+          {/* Two Modes: All Tamil | All English */}
+          <LanguageModeToggle />
 
           {/* Live vs Cached Badge */}
           <span className={`text-[9px] uppercase font-bold tracking-wider px-2 py-1 rounded-lg flex items-center gap-1 ${

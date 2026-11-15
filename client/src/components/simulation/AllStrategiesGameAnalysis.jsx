@@ -4,6 +4,7 @@ import { useVoice } from '../../context/VoiceContext';
 import { useField } from '../../context/FieldContext';
 import { seasonAPI } from '../../services/api';
 import { CropSequenceVisualizer } from '../common/CropVisualCard';
+import LanguageModeToggle from '../common/LanguageModeToggle';
 import { 
   X, Trophy, Sliders, Volume2, VolumeX, Droplets, Sun, 
   CloudRain, ShieldAlert, CheckCircle2, RotateCcw, Flame, 
@@ -348,6 +349,9 @@ export default function AllStrategiesGameAnalysis({
 
           {/* Action Tools */}
           <div className="flex items-center gap-2">
+            {/* Two Modes: All Tamil | All English */}
+            <LanguageModeToggle variant="compact" />
+
             <button
               type="button"
               onClick={() => {
