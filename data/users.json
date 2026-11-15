@@ -61,5 +61,13 @@
     "name": "muthu",
     "phone": "9893307571",
     "email": "muthu@gmail.com"
+  },
+  {
+    "_id": "doc_1794730640456_d2xx2f",
+    "createdAt": "2026-11-15T08:17:20.456Z",
+    "updatedAt": "2026-11-15T08:17:20.458Z",
+    "pinHash": "$2a$10$aM0EQlhv.darCln/.JWoi.pihTCggmQbzGLn.YrtH63CK6Hcg8.je",
+    "name": "Test Farmer",
+    "phone": "9991112233"
   }
 ]
