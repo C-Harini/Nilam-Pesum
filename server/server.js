@@ -86,6 +86,9 @@ async function startServer() {
   });
 }
 
-startServer();
+// Start Server (Only when not running in serverless Vercel environment)
+if (process.env.VERCEL !== '1' && !process.env.NOW_REGION) {
+  startServer();
+}
 
 module.exports = app;
