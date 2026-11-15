@@ -31,19 +31,20 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve static satellite imagery & assets from data folder
 app.use('/data', express.static(path.resolve(__dirname, '../data')));
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api', fieldRoutes);
-app.use('/api', rotationRoutes);
-app.use('/api', seasonRoutes);
-app.use('/api/timemachine', timeMachineRoutes);
-app.use('/api', talkRoutes);
-app.use('/api', extensionRoutes);
-app.use('/api/voice', voiceRoutes);
+// Unified API Router (Mounted at both '/api' and '/' for dual Vercel / Express compatibility)
+const apiRouter = express.Router();
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/profile', profileRoutes);
+apiRouter.use('/', fieldRoutes);
+apiRouter.use('/', rotationRoutes);
+apiRouter.use('/', seasonRoutes);
+apiRouter.use('/timemachine', timeMachineRoutes);
+apiRouter.use('/', talkRoutes);
+apiRouter.use('/', extensionRoutes);
+apiRouter.use('/voice', voiceRoutes);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+apiRouter.get('/health', (req, res) => {
   res.json({
     status: 'ONLINE',
     system: 'Nilam Pesum (FieldVoice)',
@@ -52,6 +53,9 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+app.use('/api', apiRouter);
+app.use('/', apiRouter);
 
 // Serve compiled client if dist exists
 const clientDistPath = path.resolve(__dirname, '../client/dist');
@@ -86,9 +90,6 @@ async function startServer() {
   });
 }
 
-// Start Server (Only when not running in serverless Vercel environment)
-if (process.env.VERCEL !== '1' && !process.env.NOW_REGION) {
-  startServer();
-}
+startServer();
 
 module.exports = app;
