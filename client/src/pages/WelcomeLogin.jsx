@@ -44,14 +44,6 @@ export default function WelcomeLogin() {
     }
   }, []);
 
-  // Proactive Voice Welcome on mount
-  useEffect(() => {
-    const welcomeSpeech = isTamil
-      ? "வணக்கம்! நிலம் பேசும் விவசாய ஆலோசனை தளத்திற்கு நல்வரவு. உள்நுழைய உங்கள் மின்னஞ்சல் மற்றும் கடவுச்சொல்லை உள்ளிடவும்."
-      : "Welcome to Nilam Pesum. Please enter your email and password to sign in or create a new farmer account.";
-    speak(welcomeSpeech);
-  }, [isTamil]);
-
   const handleSpeakInstructions = () => {
     if (isSpeaking) {
       stopSpeaking();

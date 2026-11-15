@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVoice } from '../context/VoiceContext';
 import { useField } from '../context/FieldContext';
@@ -142,27 +142,38 @@ export default function VoiceOnboarding() {
   const [confirmedStrategy, setConfirmedStrategy] = useState(null);
   const [showCommitModal, setShowCommitModal] = useState(false);
 
-  // Proactive Voice Prompt on step change
+  // Step-change voice guidance (Conflict-Free: only fires when step advances, avoiding autoplay blocks & language toggle overlap)
+  const mountedRef = useRef(false);
+  const prevStepRef = useRef(currentStep);
+
   useEffect(() => {
-    let prompt = '';
-    if (currentStep === 1) {
-      prompt = isTamil
-        ? "வணக்கம்! உங்கள் பண்ணை மற்றும் நில விவரங்களை இப்போது பதிவு செய்வோம். உங்கள் நிலப்பரப்பு, மண் வகை மற்றும் பாசன முறையை குறிப்பிடவும்."
-        : "Welcome! Let's register your farm and land details. Please specify your land area, soil type, and irrigation system.";
-    } else if (currentStep === 2) {
-      prompt = isTamil
-        ? "உங்கள் நிலம் அமைந்துள்ள இடத்தை வரைபடத்தில் எங்கு வேண்டுமானாலும் தொட்டு குறியிடலாம். அந்த இடத்திற்கு குறியீட்டு முள் நகரும்."
-        : "Please point your farm anywhere on the map. The pin can be placed or dragged to any location.";
-    } else if (currentStep === 3) {
-      prompt = isTamil
-        ? "முன்னர் பயிரிட்ட பயிர்களை பலவாக தேர்வு செய்யலாம். உங்கள் விவசாய முன்னுரிமைகளை முக்கியத்துவத்திற்கு ஏற்ப மேலே கீழே நகர்த்தி வரிசைப்படுத்தவும்."
-        : "You can multi-select previously grown crops. Rank your farming priorities in order of importance.";
-    } else if (currentStep === 5) {
-      prompt = isTamil
-        ? "பயிர் சுழற்சி காலத்தைத் தேர்வு செய்யுங்கள்: 1 பருவம், 2 ஆண்டுகள், அல்லது 3 ஆண்டுகள் சுழற்சி திட்டத்தை உருவாக்கலாம்."
-        : "Select your desired crop rotation duration: 1 Year, 2 Years, or 3 Years.";
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
     }
-    if (prompt) speak(prompt);
+
+    if (prevStepRef.current !== currentStep) {
+      prevStepRef.current = currentStep;
+      let prompt = '';
+      if (currentStep === 2) {
+        prompt = isTamil
+          ? "உங்கள் நிலம் அமைந்துள்ள இடத்தை வரைபடத்தில் எங்கு வேண்டுமானாலும் தொட்டு குறியிடலாம். அந்த இடத்திற்கு குறியீட்டு முள் நகரும்."
+          : "Please point your farm anywhere on the map. The pin can be placed or dragged to any location.";
+      } else if (currentStep === 3) {
+        prompt = isTamil
+          ? "முன்னர் பயிரிட்ட பயிர்களை பலவாக தேர்வு செய்யலாம். உங்கள் விவசாய முன்னுரிமைகளை முக்கியத்துவத்திற்கு ஏற்ப மேலே கீழே நகர்த்தி வரிசைப்படுத்தவும்."
+          : "You can multi-select previously grown crops. Rank your farming priorities in order of importance.";
+      } else if (currentStep === 5) {
+        prompt = isTamil
+          ? "பயிர் சுழற்சி காலத்தைத் தேர்வு செய்யுங்கள்: 1 பருவம், 2 ஆண்டுகள், அல்லது 3 ஆண்டுகள் சுழற்சி திட்டத்தை உருவாக்கலாம்."
+          : "Select your desired crop rotation duration: 1 Year, 2 Years, or 3 Years.";
+      } else if (currentStep === 6) {
+        prompt = isTamil
+          ? "உங்கள் நிலத்திற்கான பரிந்துரைக்கப்பட்ட பயிர் சுழற்சி உத்திகள் தயாராக உள்ளன."
+          : "Recommended crop rotation strategies are ready for your farm.";
+      }
+      if (prompt) speak(prompt);
+    }
   }, [currentStep, isTamil]);
 
   // Voice recognition handler

@@ -388,5 +388,38 @@
       "Earn more",
       "Lower my risk"
     ]
+  },
+  {
+    "_id": "doc_1794736448669_644gdt",
+    "createdAt": "2026-11-15T09:54:08.669Z",
+    "updatedAt": "2026-11-15T09:54:08.669Z",
+    "userId": "doc_1794736421148_6iw87t",
+    "fieldId": "field_tn01",
+    "name": "3 பண்ணை",
+    "areaAcres": 5,
+    "location": {
+      "lat": 11.0344,
+      "lng": 79.6264
+    },
+    "soil": {
+      "texture": "Alluvial Clay Loam (வண்டல் மண்)",
+      "organicMatterPct": 2.1,
+      "pH": 7.2,
+      "drainage": "Well drained",
+      "awcInches": 2.5,
+      "source": "TNAU Soil Survey / NASA MERRA-2"
+    },
+    "waterSource": "irrigated",
+    "currentCrop": "paddy",
+    "previousCrops": [
+      "paddy",
+      "black_gram"
+    ],
+    "priorities": [
+      "Save water",
+      "Protect my soil",
+      "Earn more",
+      "Lower my risk"
+    ]
   }
 ]

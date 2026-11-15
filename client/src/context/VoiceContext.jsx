@@ -14,6 +14,7 @@ export function VoiceProvider({ children }) {
   const recognitionRef = useRef(null);
   const audioCtxRef = useRef(null);
   const audioPlayerRef = useRef(null);
+  const speechIdRef = useRef(0);
 
   // Initialize available voices and listen for voiceschanged event
   useEffect(() => {
@@ -142,6 +143,9 @@ export function VoiceProvider({ children }) {
   }, [i18n.language]);
 
   const startListening = (onFinal) => {
+    // Conflict Prevention: Stop any active speech immediately so microphone doesn't hear computer's voice
+    stopSpeaking();
+
     if (!recognitionRef.current) return;
     setTranscript('');
     try {
@@ -173,23 +177,59 @@ export function VoiceProvider({ children }) {
     setIsListening(false);
   };
 
-  // Fallback to Web Speech Synthesis API with dedicated Male Voice profile
-  const fallbackSpeechSynthesis = (cleanText, isTamil) => {
+  // Conflict-free Stop Speaking: increments session token to invalidate any in-flight requests or callbacks
+  const stopSpeaking = () => {
+    speechIdRef.current++;
+
+    if (audioPlayerRef.current) {
+      try {
+        const audio = audioPlayerRef.current;
+        audio.onended = null;
+        audio.onerror = null;
+        audio.pause();
+        audio.src = '';
+        audio.load();
+      } catch (e) {}
+      audioPlayerRef.current = null;
+    }
+
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+        window.speechSynthesis.cancel();
+      } catch (e) {}
+    }
+
+    setIsSpeaking(false);
+  };
+
+  // Dedicated Browser Male Voice Fallback (valluvar for Tamil Male; David/Mark for English Male)
+  const fallbackSpeechSynthesis = (cleanText, isTamil, currentId) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
-      setIsSpeaking(false);
+      if (speechIdRef.current === currentId) setIsSpeaking(false);
       return;
     }
+
+    // If another speech action started since this was triggered, abort immediately
+    if (speechIdRef.current !== currentId) {
+      return;
+    }
+
     try {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
       window.speechSynthesis.cancel();
+
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      // Male voice acoustic settings: lower pitch & steady cadence
       utterance.rate = 0.90;
-      utterance.pitch = 0.78; // Deep, natural male voice fundamental frequency
+      utterance.pitch = 0.78; // Deep, natural adult male frequency
       utterance.lang = isTamil ? 'ta-IN' : 'en-US';
 
       const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
       
-      // Specifically select Male voice (Microsoft Valluvar on Windows is Tamil Male; David/Mark is English Male)
       const maleTamilVoice = voices.find(v => 
         (v.lang === 'ta-IN' || v.lang.startsWith('ta')) && 
         (v.name.toLowerCase().includes('valluvar') || 
@@ -213,30 +253,51 @@ export function VoiceProvider({ children }) {
         utterance.voice = selectedVoice;
       }
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
+      utterance.onstart = () => {
+        if (speechIdRef.current === currentId) {
+          setIsSpeaking(true);
+        }
+      };
+
+      utterance.onend = () => {
+        if (speechIdRef.current === currentId) {
+          setIsSpeaking(false);
+        }
+      };
+
       utterance.onerror = (e) => {
-        console.warn('SpeechSynthesis fallback error', e);
-        setIsSpeaking(false);
+        console.warn('SpeechSynthesis error:', e?.error || e);
+        if (speechIdRef.current === currentId) {
+          setIsSpeaking(false);
+        }
       };
 
       window.speechSynthesis.speak(utterance);
     } catch (err) {
       console.warn('Speech synthesis failed', err);
-      setIsSpeaking(false);
+      if (speechIdRef.current === currentId) {
+        setIsSpeaking(false);
+      }
     }
   };
 
   /**
-   * Universal Speech Output (Strict Male Voice Profile):
-   * 1. Primary Engine: High-fidelity audio stream with pitch-shifted male resonant tone
-   * 2. Secondary Engine: Web Speech API locked to male voices (Valluvar / David / Mark)
+   * Conflict-Free Universal Male Voice Engine:
+   * - Monotonic session token prevents race conditions and double speech
+   * - Mic listening is immediately silenced before speaking
+   * - Fallback is strictly guarded against duplicate invocations
    */
   const speak = (text) => {
     if (!text || typeof text !== 'string') return;
 
-    // Immediately stop any existing speech or audio
+    // 1. Conflict Prevention: Stop any active microphone listening so it doesn't hear speech
+    if (isListening || recognitionRef.current) {
+      stopListening();
+    }
+
+    // 2. Stop any existing audio or synthesis and assign fresh monotonic session token
     stopSpeaking();
+    const currentId = speechIdRef.current;
 
     // Clean text: strip markdown bold/italics, headers, emojis, and brackets
     const cleanSpeechText = text
@@ -253,11 +314,19 @@ export function VoiceProvider({ children }) {
     const isTamil = i18n.language === 'ta' || /[\u0B80-\u0BFF]/.test(cleanSpeechText);
     const lang = isTamil ? 'ta' : 'en';
 
+    let fallbackFired = false;
+    const safeFallback = () => {
+      if (fallbackFired) return;
+      fallbackFired = true;
+      if (speechIdRef.current !== currentId) return;
+      fallbackSpeechSynthesis(cleanSpeechText, isTamil, currentId);
+    };
+
     try {
       const audioUrl = `/api/voice/tts?text=${encodeURIComponent(cleanSpeechText)}&lang=${lang}`;
       const audio = new Audio(audioUrl);
       
-      // Transform audio into pure Male voice register:
+      // Male Voice Formant Shaping:
       // Disabling pitch preservation and lowering playback rate shifts formants down by 14%
       // converting female/neutral TTS into a rich, natural male tone
       audio.preservesPitch = false;
@@ -269,36 +338,32 @@ export function VoiceProvider({ children }) {
       setIsSpeaking(true);
 
       audio.onended = () => {
-        setIsSpeaking(false);
+        if (speechIdRef.current === currentId) {
+          setIsSpeaking(false);
+        }
       };
 
       audio.onerror = (err) => {
+        if (speechIdRef.current !== currentId) return;
         console.warn('[Native TTS Audio error, switching to browser male voice synthesis]', err);
-        fallbackSpeechSynthesis(cleanSpeechText, isTamil);
+        safeFallback();
       };
 
       audio.play().catch((playErr) => {
-        console.warn('[Audio play interrupted, using Web Speech male voice]', playErr);
-        fallbackSpeechSynthesis(cleanSpeechText, isTamil);
+        if (speechIdRef.current !== currentId) return;
+        // If autoplay is blocked by browser policy before first click, do not spam fallback
+        if (playErr.name === 'NotAllowedError') {
+          console.info('[Speech playback awaiting user click/interaction]');
+          setIsSpeaking(false);
+          return;
+        }
+        console.warn('[Audio play interrupted, switching to browser male voice]', playErr);
+        safeFallback();
       });
     } catch (err) {
       console.warn('[Audio constructor error]', err);
-      fallbackSpeechSynthesis(cleanSpeechText, isTamil);
+      safeFallback();
     }
-  };
-
-  const stopSpeaking = () => {
-    if (audioPlayerRef.current) {
-      try {
-        audioPlayerRef.current.pause();
-        audioPlayerRef.current.currentTime = 0;
-      } catch (e) {}
-      audioPlayerRef.current = null;
-    }
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    setIsSpeaking(false);
   };
 
   return (
