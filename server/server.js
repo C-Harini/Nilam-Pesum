@@ -14,7 +14,6 @@ const seasonRoutes = require('./routes/seasonRoutes');
 const timeMachineRoutes = require('./routes/timeMachineRoutes');
 const talkRoutes = require('./routes/talkRoutes');
 const extensionRoutes = require('./routes/extensionRoutes');
-const voiceRoutes = require('./routes/voiceRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,7 +39,6 @@ app.use('/api', seasonRoutes);
 app.use('/api/timemachine', timeMachineRoutes);
 app.use('/api', talkRoutes);
 app.use('/api', extensionRoutes);
-app.use('/api/voice', voiceRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

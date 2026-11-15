@@ -2,17 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useField } from '../context/FieldContext';
-import { useVoice } from '../context/VoiceContext';
 import { rotationAPI, seasonAPI } from '../services/api';
 import AllStrategiesGameAnalysis from '../components/simulation/AllStrategiesGameAnalysis';
 import StrategyCommitModal from '../components/simulation/StrategyCommitModal';
 import { CropSequenceVisualizer } from '../components/common/CropVisualCard';
-import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle, Maximize2, Trophy, Volume2, VolumeX } from 'lucide-react';
+import { Sprout, CheckCircle2, Sliders, TrendingUp, ShieldAlert, Award, Calendar, DollarSign, Droplets, Shield, ArrowRight, RefreshCw, AlertCircle, Maximize2, Trophy } from 'lucide-react';
 
 export default function RotationPlan() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { speak, stopSpeaking, isSpeaking } = useVoice();
   const isTamil = i18n.language === 'ta';
   const { currentFieldId, profile } = useField();
   const [rotations, setRotations] = useState([]);
@@ -201,24 +199,6 @@ export default function RotationPlan() {
                   <h3 className="font-display font-bold text-sm text-soil-900">
                     {rot.name}
                   </h3>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isSpeaking) {
-                        stopSpeaking();
-                      } else {
-                        const stratTitle = rot.name.split('(')[0];
-                        speak(isTamil
-                          ? `உத்தி எண் ${idx + 1}: ${stratTitle}. ${rot.description}. ஒட்டுமொத்த தகுதி மதிப்பெண் 100-க்கு ${rot.scores.overall}.`
-                          : `Strategy ${idx + 1}: ${rot.name}. Overall score: ${rot.scores.overall} out of 100.`);
-                      }
-                    }}
-                    className="p-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 ml-1 active:scale-95 transition"
-                    title={isTamil ? "தமிழில் கேட்க" : "Listen aloud"}
-                  >
-                    <Volume2 className="w-3.5 h-3.5 text-amber-800" />
-                  </button>
                 </div>
 
                 <div className="text-right">

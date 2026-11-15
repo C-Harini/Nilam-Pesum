@@ -74,5 +74,39 @@
       "Earn more",
       "Lower my risk"
     ]
+  },
+  {
+    "_id": "doc_1794730076676_g9kx5y",
+    "createdAt": "2026-11-15T08:07:56.676Z",
+    "updatedAt": "2026-11-15T08:07:56.677Z",
+    "userId": "doc_1794730039364_iz8fsx",
+    "fieldId": "field_tn01",
+    "name": "selvam பண்ணை",
+    "areaAcres": 10,
+    "location": {
+      "lat": 11.6643,
+      "lng": 78.146
+    },
+    "soil": {
+      "texture": "Black Clay (கரிசல் மண்)",
+      "organicMatterPct": 2.1,
+      "pH": 7.2,
+      "drainage": "Well drained",
+      "awcInches": 2.5,
+      "source": "TNAU Soil Survey / NASA MERRA-2"
+    },
+    "waterSource": "rainfed",
+    "currentCrop": "paddy",
+    "previousCrops": [
+      "paddy",
+      "groundnut",
+      "sugarcane"
+    ],
+    "priorities": [
+      "Earn more",
+      "Save water",
+      "Lower my risk",
+      "Protect my soil"
+    ]
   }
 ]

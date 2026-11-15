@@ -168,37 +168,6 @@ export default function VoiceOnboarding() {
     });
   };
 
-  // Explicit Speak Current Step Audio
-  const handleSpeakCurrentStep = () => {
-    if (isSpeaking) {
-      stopSpeaking();
-      return;
-    }
-    let prompt = '';
-    if (currentStep === 1) {
-      prompt = isTamil
-        ? `வணக்கம் ${farmerName || 'விவசாயி'}! இது படிநிலை ஒன்று. உங்கள் பண்ணை மற்றும் நில விவரங்களை பதிவு செய்யவும். உங்கள் நிலப்பரப்பு, மண் வகை மற்றும் பாசன முறையை குறிப்பிடவும்.`
-        : `Welcome! Step 1: Farm and land details. Please specify your acreage, soil texture, and irrigation system.`;
-    } else if (currentStep === 2) {
-      prompt = isTamil
-        ? `படிநிலை இரண்டு: உங்கள் நிலம் அமைந்துள்ள இடத்தை வரைபடத்தில் எங்கு வேண்டுமானாலும் தொட்டு குறியிடவும். அந்த இடத்திற்கு குறியீட்டு முள் உடனடியாக நகரும்.`
-        : `Step 2: Point your farm location anywhere on the map. The pin moves to your selected coordinates.`;
-    } else if (currentStep === 3) {
-      prompt = isTamil
-        ? `படிநிலை மூன்று: முன்னர் பயிரிட்ட பயிர்களை பலவாக தேர்வு செய்யலாம். உங்கள் விவசாய முன்னுரிமை இலக்குகளை முக்கியத்துவத்திற்கு ஏற்ப வரிசைப்படுத்தவும்.`
-        : `Step 3: Multi-select previously grown crops and rank your farming goals in order of importance.`;
-    } else if (currentStep === 5) {
-      prompt = isTamil
-        ? `படிநிலை ஐந்து: பயிர் சுழற்சி காலத்தைத் தேர்வு செய்யுங்கள்: 1 பருவம், 2 ஆண்டுகள், அல்லது 3 ஆண்டுகள் சுழற்சி திட்டத்தை உருவாக்கலாம்.`
-        : `Step 5: Select your rotation duration: 1 Year, 2 Years, or 3 Years.`;
-    } else if (currentStep === 6) {
-      prompt = isTamil
-        ? `படிநிலை ஆறு: உங்கள் நிலத்திற்கான சிறந்த ${strategies.length} பயிர் சுழற்சி உத்திகள் தயார். ஒவ்வொரு உத்தியையும் விளையாட்டாக சோதிக்கலாம், நிலத்தில் உருவகப்படுத்தலாம் அல்லது நேரடியாக உறுதி செய்யலாம்.`
-        : `Step 6: Top crop rotation strategies generated for your field. You can test each in game mode, simulate on land, or commit directly.`;
-    }
-    speak(prompt);
-  };
-
   const processTranscript = async (text) => {
     if (!text || text.trim().length === 0) return;
     try {
@@ -447,23 +416,11 @@ export default function VoiceOnboarding() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {confirmationMsg && (
-            <span className="hidden sm:inline text-[11px] font-bold text-field-700 bg-field-100 px-2 py-1 rounded-lg">
-              ✓ பகுப்பாய்வு செய்யப்பட்டது
-            </span>
-          )}
-
-          <button
-            type="button"
-            onClick={handleSpeakCurrentStep}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-950 text-xs font-bold border border-amber-300 shadow-sm active:scale-95 transition flex-shrink-0"
-            title="குரல் வழி விளக்கம் / Listen to Step Instructions"
-          >
-            {isSpeaking ? <VolumeX className="w-4 h-4 text-amber-800 animate-pulse" /> : <Volume2 className="w-4 h-4 text-amber-800" />}
-            <span>{isSpeaking ? (isTamil ? 'நிறுத்து' : 'Stop') : (isTamil ? '🔊 தமிழில் கேட்க' : '🔊 Listen')}</span>
-          </button>
-        </div>
+        {confirmationMsg && (
+          <span className="hidden sm:inline text-[11px] font-bold text-field-700 bg-field-100 px-2 py-1 rounded-lg">
+            ✓ பகுப்பாய்வு செய்யப்பட்டது
+          </span>
+        )}
       </div>
 
       {/* STEP 1: FARMER & LAND DETAILS */}

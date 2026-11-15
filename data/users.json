@@ -52,5 +52,14 @@
     "pinHash": "$2a$10$vK5dqLaUG5wCn1xBAuBRNe3k8fvMmwBlhwSPlHEIlhjgGoFd79..2",
     "name": "Test Farmer",
     "phone": "9991112233"
+  },
+  {
+    "_id": "doc_1794730039364_iz8fsx",
+    "createdAt": "2026-11-15T08:07:19.364Z",
+    "updatedAt": "2026-11-15T08:07:19.364Z",
+    "pinHash": "$2a$10$ugNXeInX9uAty8CMAIkwKe4oz7J3Jc/W0qrWBaHQ0wMm8taGJgvvG",
+    "name": "muthu",
+    "phone": "9893307571",
+    "email": "muthu@gmail.com"
   }
 ]
